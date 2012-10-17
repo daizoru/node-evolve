@@ -33,12 +33,13 @@ which can easily mutate without create JavaScript syntax errors (eg. invalid par
 
 ### Using the API
 
+#### Load a source string
+
 ```JavaScript
 var evolve = require("evolve");
 
 var old_src = "x1 = 0; x2 = 42; f1 = function() { return x2 * 10; }; x1 = f1();";
 
-// clone a string
 evolve.mutateSrc({
 
   // input source code (string)
@@ -52,7 +53,25 @@ evolve.mutateSrc({
 
 ```
 
-## Example
+#### Load a file
+
+```JavaScript
+
+evolve.mutateFile({
+  "file" : examples/evolvable.js",
+  "onComplete": function(src) { return console.log(src); }
+});
+
+```
+
+## Examples
+
+### Basic example
+
+See /examples/evolvable.coffee
+
+
+### In command line
 
 Given the following input source file:
 
@@ -73,8 +92,11 @@ node-evolve might spit out:
 
 
 ```JavaScript
-
-
+ x1=42;x2=12.229614844545722;x3=40;x4=10;x5=10;f1=function(){return x1*x3};f2=function(){return Math.cos(x1)+Math.sin(x1)};f2=function(){return x2*x2};Math.cos()+f2()+4*(3+12.229614844545722+6)
 ```
 
-Of course your mileage may vary
+Of course your mileage may vary. 
+
+The code is not human-readable anymore, which is a good thing.
+You can now test it in live! in production! err, I mean.. in
+a sandbox, Pareto front algorithm, or something.
