@@ -3,9 +3,16 @@ node-evolve
 
 Programmatically evolve source code
 
-## Introdution
+## Summary
 
 Evolve is a low-level library for evolving JavaScript source code.
+
+You can use to mutate parts of your application (sub-scripts)
+in order to solve hard to solve optimization problems.
+
+Since node-evolve only provide a few helper functions for manipulating 
+JavaScript code, you have to take care of any other high-level 
+selection algorithm (breeding, fitness function, Pareto frontier..)
 
 ## Limitations
 
