@@ -12,8 +12,8 @@ Evolve is a low-level library for evolving JavaScript source code.
 The evolved code must respect some security rules and constraints.
 You cannot use "var x = ..", so you must use pre-defined variables and function symbols.
 
-In the future I may create an API to make this process painless,
-but for the moment you there are only 5 vars for values (x1, x2, x3, x4 and x5),
+In the future I may create an API to make this customizable,
+but for the moment there are only 5 vars for values (x1, x2, x3, x4 and x5),
 and 5 vars for functions (f1, f2, f3, f4 and f5)
 
 Functions must not take arguments, but they can have side effects.
