@@ -56,11 +56,11 @@ evolve.mutateSrc({
 #### Load a file
 
 ```JavaScript
-
-evolve.mutateFile({
-  "file" : examples/evolvable.js",
-  "onComplete": function(src) { return console.log(src); }
-});
+  
+  evolve.mutateFile({
+    "file" : "examples/evolvable.js",
+    "onComplete": function(src) { return console.log(src); }
+  });
 
 ```
 
