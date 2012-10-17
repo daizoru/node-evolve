@@ -1,0 +1,20 @@
+{
+  "name": "evolve",
+  "description": "Programmatically evolve source code",
+  "version": "0.0.0",
+  "author": "Julian Bilcke <julian.bilcke@daizoru.com>",
+  "scripts"     : {
+    "build"     : "node_modules/coffee-script/bin/coffee --compile --output lib/ src/",
+    "watch"     : "node_modules/coffee-script/bin/coffee --watch --compile --output lib/ src/"
+  },
+  "bin" : "./bin/evolve",
+  "main" : "./lib/evolve",
+  "dependencies" : {
+     "ragtime" : "*",
+     "deck"    : "*",
+     "uglify-js" : "*"
+   },
+  "devDependencies": {
+     "coffee-script" : "1.3.3"
+  }
+}
