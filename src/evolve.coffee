@@ -101,7 +101,7 @@ THIS_CODE_CAN_BE_MUTATED_TOO =
       mult: 5000
 
     action = deck.pick numOperations
-    console.log "action: #{action}"
+    #console.log "action: #{action}"
     switch action
       when 'mult'
         console.log "MUTATION: NUMBER #{value} * Math.random()"
@@ -186,7 +186,7 @@ mutate = (old_code, tmin, tmax, dbg, cb) -> async ->
 
   values = []
   for node in nodes
-    console.log "testing node: #{node}"
+    #console.log "testing node: #{node}"
     if isArray node
       if node[0] in ['call', 'name','num']
 
@@ -329,33 +329,63 @@ mutate = (old_code, tmin, tmax, dbg, cb) -> async ->
       console.log "aborting after #{tmin} tentatives"
       async -> cb old_code 
 
-main = ->
-  filePath = process.argv[2]
-  #andRun = (Boolean) process.argv[3] ? no
 
-  
-  # debug mode
-  dbg = ('debug' in process.argv)
+mutateSrc = exports.mutateSrc = (options = {}) -> async ->
+  console.log "mutateSrc"
+  opts =
+    src:  ""
+    debug: no
+    insist: no
+    tentatives: 1
+    onError: (err) -> throw err
+    onComplete: (src) ->
+  for k, v of options
+    opts[k] = v
+  console.log "options: #{inspect options}"
+  if opts.debug
+    console.log src
+  mutate opts.src, 0, opts.tentatives, opts.debug, (src) -> 
+    async -> opts.onComplete(src)
 
-  # insist to find a result
-  insist = ('insist' in process.argv)
+mutateFile = exports.mutateFile = (options = {}) -> async ->
+  console.log "mutateFile"
+  opts =
+    file: process.argv[1]
+    debug: no
+    insist: no
+    tentatives: 1
+    encoding: 'utf-8'
+    onError: (err) -> throw err
+    onComplete: (src) ->
 
-  unless filePath
-    console.log "error, no file"
-    return
-  fs.readFile filePath, 'utf-8', (err, old_code) ->
-    if err 
-      throw err
+  for k, v of options
+    opts[k] = v
+
+  fs.readFile opts.file, opts.encoding, (err, src) ->
+    if err
+      async -> opts.onError err
       return
-    
-    if dbg
-     console.log old_code
+    mutateSrc
+      src: src
+      debug: opts.debug
+      tentatives: opts.tentatives
+      onError: (err) -> async -> opts.onError err
+      onComplete: (src) -> async -> opts.onComplete src
 
-    tentatives = 1
-    if insist
-      tentatives = 3
 
-    mutate old_code, 0, tentatives, dbg, (new_code) ->
-      console.log "#{new_code}"
-
-exports.cli = main
+exports.cli = main = ->
+  if process.argv.length > 2
+    mutateFile
+      debug: ('debug' in process.argv)
+      tentatives: if ('insist' in process.argv) then 3 else 1
+      encoding: 'utf-8'
+      file: process.argv[2]
+      onError: (err) -> throw err
+      onComplete: (src) -> console.log src
+  else
+    mutateSrc
+      src: fs.readFileSync('/dev/stdin').toString()
+      debug: ('debug' in process.argv)
+      tentatives: if ('insist' in process.argv) then 3 else 1
+      onError: (err) -> throw err
+      onComplete: (src) -> console.log src
