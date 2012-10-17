@@ -7,12 +7,12 @@ Programmatically evolve source code
 
 Evolve is a low-level library for evolving JavaScript source code.
 
-You can use to mutate parts of your application (sub-scripts)
+You can use it to mutate parts of your application (sub-scripts)
 in order to solve "hard to solve" optimization problems.
 
 Since node-evolve only provide a few helper functions for manipulating 
-JavaScript code, you have to take care of any other high-level 
-selection algorithm (breeding, fitness function, Pareto frontier..)
+JavaScript code, you have to take care yourself of any other high-level 
+selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 ## Limitations
 
@@ -27,6 +27,13 @@ Functions must not take arguments, but they can have side effects. Actually, thi
 
 These basic constraints allow more freedom to the evolved code,
 which can easily mutate without create JavaScript syntax errors (eg. invalid parameters)
+
+## WARNING
+
+  For the moment you cannot customize the mutations rules and probabilities
+
+  Yes, I know, it is pretty useless then. 
+  That why I haven't published the lib on NPM yet. There is still some work to do.
 
 ## Installation
 
