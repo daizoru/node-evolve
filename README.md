@@ -16,7 +16,7 @@ In the future I may create an API to make this customizable,
 but for the moment there are only 5 vars for values (x1, x2, x3, x4 and x5),
 and 5 vars for functions (f1, f2, f3, f4 and f5)
 
-Functions must not take arguments, but they can have side effects.
+Functions must not take arguments, but they can have side effects. Actually, this is encouraged if you want emergence of complex patterns and algorithms.
 
 These basic constraints allow more freedom to the evolved code,
 which can easily mutate without create JavaScript syntax errors (eg. invalid parameters)
