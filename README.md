@@ -88,6 +88,7 @@ f3() + f2() + (4*(3+1+6));
 
 ```
 
+Using strong mutation settings (to break many parts of the JS code "DNA"), 
 node-evolve might spit out:
 
 
