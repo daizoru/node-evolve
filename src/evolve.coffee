@@ -38,53 +38,49 @@ exports.clone = clone = (opts) ->
   options.rules =
       decorators:
         multiply: (type, value) -> 
-          if type is 'number' and P 0.9
+          if type is 'num' and P 0.5
             [type, Math.random() * value]
-          else
-            [type, value]
 
         add: (type, value) -> 
-          if type is 'number' and P 0.9
+          if type is 'num' and P 0.5
             [type, Math.random() + value]
-          else
-            [type, value]
 
         change_operator: (type, operator, first, second) ->
-          if type is 'operation' and P 0.9
-            [type, deck.pick ['+','-','*','/'], first, second]
-          else
-            [type, operator, first, second]
+          if type is 'binary' and P 1.0
+            console.log "change operator for #{type}, #{operator}, #{first}, #{second}"
+            operators = ['+','-','*','/']
+            idx = operators.indexOf operator
+            if idx != -1  
+              operators.splice idx, 1
+            [type, deck.pick(operators), first, second]
 
         switch_terms: (type, operator, first, second) ->
-          if type is 'operation' and P 0.9
+          if type is 'binary' and P 0.5
+            console.log "switching terms for #{type}, #{operator}, #{first}, #{second}"
             [type, operator, second, first]
-          else
-            [type, operator, first, second]
 
         delete_term: (type, operator, first, second) ->
-          if type is 'operation' and P 0.9
+          if type is 'binary' and P 0.0
+            console.log "deleting term for #{type}, #{operator}, #{first}, #{second}"
             if P 0.5 then first else second
-          else
-            [type, operator, first, second]
 
         duplicate_term: (type, operator, first, second) ->
-          if type is 'operation' and P 0.9
+          if type is 'binary' and P 0.0
+            console.log "duplicate_term for #{type}, #{operator}, #{first}, #{second}"
+            cpy = copy [type, operator, first, second]
             if P 0.5 
-              [type, operator, [type, operator, first, second], second]
+              [type, operator, cpy, second]
             else 
-              [type, operator, first, [type, operator, first, second]]
-          else
-            [type, operator, first, second]
+              [type, operator, first, cpy]
+
 
         # change a read-only variable
         change_read_variable: (type, name, read_variables) ->
-          if type is 'read_variable' and P 0.9
+          if type is 'read_variable' and P 0.5
             [type, deck.pick(options.reservoir.constants)]
-          else
-            [type, name]
 
         change_write_variable: (type, name, write_variables) ->
-          if type is 'write_variable' and P 0.9
+          if type is 'write_variable' and P 0.5
             [type, name]
 
   for k,v of opts
@@ -150,6 +146,37 @@ exports.clone = clone = (opts) ->
   [constant_tree_hook,mutable_tree] = mutableResult
 
   passOne = ->
+
+    recursive = (parent, id) ->
+
+      console.log "in node #{parent[id]}"
+      if isArray parent[id]
+        i = 0
+        for n in parent[id]
+          recursive parent[id], i++
+
+      # NOT A BUG
+
+      if isArray parent[id]
+        switch parent[id][0]
+          when 'num'
+            for decoratorName, decorator of options.rules.decorators
+              #console.log "applying rule #{decoratorName} to #{parent[id]}"
+              res = decorator parent[id]...
+              unless isUndefined res
+                parent[id] = res
+
+          when 'binary'
+            for decoratorName, decorator of options.rules.decorators
+              res = decorator parent[id]...
+              if isArray res
+                console.log "result: type: #{res[0]}, operator: #{res[1]}, first: #{res[2]}, second: #{res[3]}"
+              
+                parent[id] = res
+
+        
+    recursive [mutable_tree], 0
+
     console.log "pass one"
 
   passOne()
@@ -178,7 +205,7 @@ exports.clone = clone = (opts) ->
     space_colon: no # (only applies when beautify is true) – wether to put a space before the colon in object literals
 
   work.new_func = eval work.new_src
-  
+
   console.log "work terminated"
   options.onComplete work.new_func
 
