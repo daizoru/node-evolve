@@ -85,34 +85,3 @@ evolve.mutateSrc({
 
 See /examples
 
-
-### In command line
-
-Given the following input source file:
-
-```JavaScript
-
-// init memory
-x1 = 42; x2 = 20; x3 = 40; x4 = 10; x5 = 10;
-
-f1 = function() { return              x1 * x3;                };
-f2 = function() { return      Math.cos(x1) + Math.sin(x1);    };
-f3 = function() { return              x2 * x2;                };
-
-f3() + f2() + (4*(3+1+6));
-
-```
-
-Using strong mutation settings (to break many parts of the JS code "DNA"), 
-node-evolve might spit out:
-
-
-```JavaScript
- x1=42;x2=12.229614844545722;x3=40;x4=10;x5=10;f1=function(){return x1*x3};f2=function(){return Math.cos(x1)+Math.sin(x1)};f2=function(){return x2*x2};Math.cos()+f2()+4*(3+12.229614844545722+6)
-```
-
-Of course your mileage may vary. 
-
-The code is not human-readable anymore, which is a good thing.
-You can now test it in live! in production! err, I mean.. in
-a sandbox, Pareto front algorithm, or something.
