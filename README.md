@@ -14,27 +14,6 @@ Since node-evolve only provide a few helper functions for manipulating
 JavaScript code, you have to take care yourself of any other high-level 
 selection logic (mating algorithms, fitness function, Pareto frontier..)
 
-## Limitations
-
-The evolved code must respect some security rules and constraints.
-You cannot use "var x = ..", so you must use pre-defined variables and function symbols.
-
-In the future I may create an API to make this customizable,
-but for the moment there are only 5 vars for values (x1, x2, x3, x4 and x5),
-and 5 vars for functions (f1, f2, f3, f4 and f5)
-
-Functions must not take arguments, but they can have side effects. Actually, this is encouraged if you want emergence of complex patterns and algorithms.
-
-These basic constraints allow more freedom to the evolved code,
-which can easily mutate without create JavaScript syntax errors (eg. invalid parameters)
-
-## WARNING
-
-  For the moment you cannot customize the mutations rules and probabilities
-
-  Yes, I know, it is pretty useless then. 
-  That why I haven't published the lib on NPM yet. There is still some work to do.
-
 ## Installation
 
     $ npm install -g evolve
@@ -46,6 +25,38 @@ which can easily mutate without create JavaScript syntax errors (eg. invalid par
     $ evolve path/to/sourcefile.js [debug]
 
 ### Using the API
+
+#### Defining a block of mutable code
+
+```CoffeeScript
+
+class Foo
+
+  foo: (x,y,z) =>
+
+    [a,b,c] = [0,0,0]
+
+    # define a block of evolvable code, algorithm, neural network..
+    evolve.mutable ->
+
+      # the evolved code can only mess with foo()'s variables
+      # if evolution goes wrong
+      a = x * 1
+      b = y * 1
+      c = z * 1
+
+      # you can add an "hidden" level of memory
+      f = 5
+      g = 42 
+
+      # and maths!
+      b = Math.cos(f) + Math.cos(g * a)
+      c = a + 3
+
+    # outside the block, you can call your stuff as usual
+    @bar a, b, c
+
+```
 
 #### Load a source string
 
