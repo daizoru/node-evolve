@@ -22,7 +22,7 @@ exports.toAST = toAST = (f) -> jsp.parse f.toString()
 exports.clone = clone = (opts) -> 
 
   options = 
-    f: ->
+    src: ""
     ratio: 0.5
 
     pretty: yes
@@ -88,8 +88,7 @@ exports.clone = clone = (opts) ->
 
 
   console.log "options: #{inspect options}"
-  work = old_func: options.f
-  work.old_src = work.old_func.toString()
+  work.old_src = work.src
 
 
   console.log "old_src: #{work.old_src}"
@@ -204,22 +203,69 @@ exports.clone = clone = (opts) ->
     quote_keys: no # – if you pass true it will quote all keys in literal objects
     space_colon: no # (only applies when beautify is true) – wether to put a space before the colon in object literals
 
-  work.new_func = eval work.new_src
-
   console.log "work terminated"
-  options.onComplete work.new_func
+  options.onComplete work.new_src
 
 
 # mutate replace a function inline!
 exports.mutate = mutate = (options) ->
   console.log "mutate options: #{inspect options}"
   clone 
-    f: options.obj[options.func]
-    onComplete: (newFunction) ->
+    src: options.obj[options.func].toString()
+    onComplete: (new_src) ->
+
+      newFunction = eval new_src
+
       console.log "replacing function with #{newFunction}"
       options.obj[options.func] = newFunction
       options.onComplete()
 
+# mutate replace a function inline!
+exports.readFile = readFile = (opts) ->
+  options =
+    file: ''
+    encoding: 'utf-8'
+    onError: (err) ->
+  for k,v of opts
+    options[k] = v
+
+  console.log "mutate options: #{inspect options}"
+
+  fs.readFile options.file, options.encoding, (err, src) ->
+    console.log "loaded : "
+    if err
+      console.log "couldn't load file: #{err}"
+      async -> options.onError err
+      return
+
+    clone 
+      src: src
+      onComplete: (new_src) ->
+        options.onComplete new_src
+
+
 # simple marker
 exports.mutable = mutable = (f) -> f()
+
+m
+exports.cli = main = ->
+  if process.argv.length > 2
+    readFile
+      debug: ('debug' in process.argv)
+      pretty: ('pretty' in process.argv)
+      encoding: 'utf-8'
+      file: process.argv[2]
+      onError: (err) -> 
+        console.log "error: #{err}"
+        throw err
+      onComplete: (src) -> console.log src
+  else
+    clone
+      src: fs.readFileSync('/dev/stdin').toString()
+      debug: ('debug' in process.argv)
+      pretty: ('pretty' in process.argv)
+      onError: (err) ->
+        console.log "error: #{err}"
+        throw err
+      onComplete: (src) -> console.log src
 
