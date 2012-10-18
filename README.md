@@ -29,9 +29,12 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
 #### Defining a block of mutable code
 
 ```CoffeeScript
+evolve = require 'evolve'
 
 class Foo
 
+  constructor: ->
+  
   foo: (x,y,z) =>
 
     [a,b,c] = [0,0,0]
@@ -58,6 +61,21 @@ class Foo
 
 ```
 
+#### Dynamic mutation (aka radioactive contamination mode)
+
+```CoffeeScript
+{mutate} = require 'evolve'
+
+evolve.mutate 
+  obj: Foo.prototype
+  func: 'foo'
+  onComplete: ->
+    console.log "mutation of foo() completed."
+
+    f = new Foo()
+    f.foo()
+```
+
 #### Load a source string
 
 ```JavaScript
@@ -65,7 +83,8 @@ var evolve = require("evolve");
 
 var old_src = "x1 = 0; x2 = 42; f1 = function() { return x2 * 10; }; x1 = f1();";
 
-evolve.mutateSrc({
+// clone a source, with some "dna" copy errors
+evolve.clone({
 
   // input source code (string)
   "src" : old_src,
@@ -82,7 +101,8 @@ evolve.mutateSrc({
 
 ```JavaScript
   
-  evolve.mutateFile({
+  // read a file, with some "dna" copy errors
+  evolve.readFile({
     "file" : "examples/evolvable.js",
     "onComplete": function(src) { return console.log(src); }
   });
