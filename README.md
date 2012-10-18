@@ -78,11 +78,12 @@ evolve.mutateSrc({
 
 ```
 
+
 ## Examples
 
 ### Basic example
 
-See /examples/evolvable.coffee
+See /examples
 
 
 ### In command line
