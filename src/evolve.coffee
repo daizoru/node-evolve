@@ -88,6 +88,7 @@ exports.clone = clone = (opts) ->
 
 
   console.log "options: #{inspect options}"
+  work = {}
   work.old_src = work.src
 
 
@@ -247,7 +248,6 @@ exports.readFile = readFile = (opts) ->
 # simple marker
 exports.mutable = mutable = (f) -> f()
 
-m
 exports.cli = main = ->
   if process.argv.length > 2
     readFile
