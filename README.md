@@ -24,15 +24,40 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 A serie of mutation is already available
 
-### Constrained mutation
+### Fast constrained mutation
 
-Most mutations are partially "safe", and constrained to specific types.
+node-evolve only try to mutate when it has meaning.
+Or rather, it will try to evolve useless things.
+
+For instance, constraints prevent mutating this:
+
+```JavaScript
+var x = 4 + 2 / y;
+```
+
+To this:
+
+```JavaScript
+var 3 = * 4 + 2 + y /;
+```
+
+Because it would violate three constraints (assign to a number,
+lone '/' and '*' operators..)
+
+But for instance, this mutation would be allowed: 
+
+```JavaScript
+var y = 2 / x / y + 4 ;
+```
+
+In the end, all these constraints make mutation more efficient,
+by avoiding running a "compilation" step or evaluation on obviously bad code. It saves time.
 
 ### Customizable rules
 
 You can input your own rules, if they can be applied to an AST node (or the root node of the whole tree).
 
-### Basic type checking
+### Type safety
 
 node-evolve check that functions references ae not mixed with values.
 For instance, if you define this context:
@@ -53,7 +78,14 @@ But this one can:
 var x = Math.PI * Math.cos(Math.PI);
 ```
 
-(behind the hood, node-evolve will automagically detect types)
+On the other hand, this one is prohibed:
+
+```CoffeeScript
+Math.PI = x * Math.cos(x);
+```
+
+Since variables and functions passed in context are read-only
+
 
 ### List of supported mutations
 
