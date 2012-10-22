@@ -59,7 +59,7 @@ You can input your own rules, if they can be applied to an AST node (or the root
 
 ### Type safety
 
-node-evolve check that functions references ae not mixed with values.
+node-evolve check that functions references are not mixed with values.
 For instance, if you define this context:
 
 ```CoffeeScript
@@ -78,7 +78,7 @@ But this one can:
 var x = Math.PI * Math.cos(Math.PI);
 ```
 
-On the other hand, this one is prohibed:
+On the other hand, this one is prohibited:
 
 ```CoffeeScript
 Math.PI = x * Math.cos(x);
