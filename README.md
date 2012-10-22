@@ -26,10 +26,10 @@ A serie of mutation is already available
 
 ### Fast constrained mutation
 
-node-evolve only try to mutate when it has meaning.
-Or rather, it will try to evolve useless things.
+node-evolve will try hard to avoid useless or bad mutations - your code will already have a hard time surviving its first eval() anyway!
 
-For instance, constraints prevent mutating this:
+It works thanks to AST constraints.
+These constraints prevent mutating this:
 
 ```JavaScript
 var x = 4 + 2 / y;
