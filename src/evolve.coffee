@@ -31,17 +31,62 @@ exports.clone = clone = (opts) ->
     debug: no
 
     # reservoir
-    context:
-      functions:
-        'Math.cos': Math.cos
-        'Math.sin': Math.sin
-        'Math.random': Math.random
-      constants:
-        'Math.PI': Math.PI
+    context: -> [
+      Math.toto.cos
+      Math.sin
+      Math.random
+      Math.PI
+    ]
+
+    reservoir: 
+      callables: []
+      constants: []
 
     clipboard: []
     rules:
       decorators: {}
+
+
+  resolve = (item) ->
+    name = ""
+    console.log "resolving #{inspect item}"
+    if item[0] is 'dot'
+      sub = ""
+      if isArray item[1]
+        sub = ""+resolve(item[1])
+      else
+        sub = item[1][1]
+      name = "#{sub}.#{item[2]}"
+    else if item[0] is 'name'
+      name = item[1]
+  
+    name
+
+  items = []
+  try
+    reservoir_ast = jsp.parse "RESERVOIR = #{options.context.toString()};", {}  
+    items = reservoir_ast[1][0][1][3][3][0][1][1]
+    console.log "imported context:"
+  catch e
+    console.log "couldn't run static analysis of context: #{e}"
+  for item in items
+    name = resolve item
+    i = undefined
+    try
+      i = eval name
+    catch e
+      console.log "error when checking #{name}: #{e}"
+      continue
+    if isFunction i
+      console.log " - #{name} is a function"
+      options.reservoir.callables.push name
+    else if isArray i
+      console.log " - #{name} is an array - not supported yet"
+    else if isNumber i
+      console.log " - #{name} is a number"
+      options.reservoir.constants.push name
+    else
+      console.log " - type of #{name} couldn't be found (value: #{i})"
 
   options.rules =
       decorators:
@@ -57,7 +102,9 @@ exports.clone = clone = (opts) ->
           if type is 'binary' and P(options.ratio* 0.3)
             if options.debug
               console.log "change operator for #{type}, #{operator}, #{a}, #{b}"
+
             operators = ['+','-','*','/']
+         
             idx = operators.indexOf operator
             if idx != -1  
               operators.splice idx, 1
@@ -88,7 +135,7 @@ exports.clone = clone = (opts) ->
         # change a read-only variable
         change_read_variable: (type, name, read_variables) ->
           if type is 'read_variable' and P(options.ratio * 0.1)
-            [type, deck.pick(options.context.constants)]
+            [type, deck.pick(options.reservoir.constants)]
 
         change_write_variable: (type, name, write_variables) ->
           if type is 'write_variable' and P(options.ratio * 0.1)

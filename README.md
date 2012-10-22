@@ -20,7 +20,35 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 ## Features 
 
-### Mutations
+### library of mutations
+
+A serie of mutation is already available
+
+### Constrained mutation
+
+Most mutations are partially "safe", and constrained to specific types.
+
+### Customizable rules
+
+You can input your own rules, if they can be applied to an AST node (or the root node of the whole tree).
+
+### Basic type checking
+
+node-evolve check that functions references ae not mixed with values.
+For instance, this mutation can't happen with node-evolve:
+
+```CoffeeScript
+var x = Math.PI * Math.cos;
+```
+
+But this one can:
+
+```CoffeeScript
+var x = Math.PI * Math.cos(Math.PI);
+```
+
+
+### List of supported mutations
 
 #### Numerical values
 
@@ -31,11 +59,25 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
   Strings are also supported.
   Mutation is done by operators like add, delete, move and substitution.
 
-#### Copy & paste
+#### Block copying, cutting & pasting
 
-  This mutation copy a node of the AST tree
-  to another place.
+  This mutation copy or cut a node of the AST tree to another place.
   It may replace a node or insert between two.
+
+#### Binary operator substitution
+
+  Operator of binary operations may be substituted by any operator
+  of this list: + - * /
+
+#### Binary operation switch
+
+  This mutation simply switch two terms of an operation,
+  eg. 10.0 / 5.0 becomes 5.0 / 10.0. 
+
+#### Variable substitution
+
+  Any variable is subject to change and remplacement by another variable
+
 
 ## How-to
 
@@ -128,21 +170,20 @@ evolve.readFile({
 
 ```
 
-#### Setup the context (available functions and variables)
+#### Setup the context
+
+
+Just pass a bunch of variables to be used in mutations
 
 ```CoffeeScript
 
-context =
-
-  # functions callable
-  functions:
-    'Math.cos': Math.cos
-    'Math.sin': Math.sin
-    'Math.random': Math.random
-
-  # vars readables (write-protected)
-  constants:
-    'Math.PI': Math.PI
+# the function is important here
+context = -> [
+  Math.cos
+  Math.sin
+  Math.random
+  Math.PI
+]
 
 evolve.mutate 
   obj: A
