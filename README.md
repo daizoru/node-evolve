@@ -10,19 +10,38 @@ Evolve is a low-level library for evolving JavaScript source code.
 You can use it to mutate parts of your application (sub-scripts)
 in order to solve "hard to solve" optimization problems.
 
-Since node-evolve only provide a few helper functions for manipulating 
-JavaScript code, you have to take care yourself of any other high-level 
+This library only provides helper functions for manipulating 
+JS code. You have to take care yourself of any other high-level 
 selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 ## Installation
 
     $ npm install -g evolve
 
-## Usage
+## Features 
 
-### In command line
+### Mutations
 
-    $ evolve path/to/sourcefile.js [debug]
+#### Numerical values
+
+  Numerical values are subject to mutation, like random multiplication or addition.
+
+#### Strings
+
+  Strings are also supported.
+  Mutation is done by operators like add, delete, move and substitution.
+
+#### Copy & paste
+
+  This mutation copy a node of the AST tree
+  to another place.
+  It may replace a node or insert between two.
+
+## How-to
+
+### Usage in command line
+
+  $ evolve path/to/sourcefile.js [debug]
 
 ### Using the API
 
@@ -101,14 +120,50 @@ evolve.clone({
 
 ```JavaScript
   
-  // read a file, with some "dna" copy errors
-  evolve.readFile({
+// read a file, with some "dna" copy errors
+evolve.readFile({
     "file" : "examples/evolvable.js",
     "onComplete": function(src) { return console.log(src); }
-  });
+});
 
 ```
 
+#### Setup the context (available functions and variables)
+
+```CoffeeScript
+
+context =
+
+  # functions callable
+  functions:
+    'Math.cos': Math.cos
+    'Math.sin': Math.sin
+    'Math.random': Math.random
+
+  # vars readables (write-protected)
+  constants:
+    'Math.PI': Math.PI
+
+evolve.mutate 
+  obj: A
+  func: 'B'
+  context: context
+  onComplete: -> # ..
+```
+
+#### Customize the mutation rules
+
+```CoffeeScruipt
+rules =
+
+  # decorators are applied on each node, and expected to return either
+  # the current, new or modified node, or an undefined value (then it is ignored)
+  decorators:
+    multiply: (type, value) -> 
+      if type is 'num' and P(0.87) then [type, Math.random() * value]
+
+
+```
 
 ## Examples
 
@@ -116,3 +171,6 @@ evolve.clone({
 
 See /examples
 
+## Change log
+
+### 0.0.0
