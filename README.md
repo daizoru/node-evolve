@@ -35,7 +35,13 @@ You can input your own rules, if they can be applied to an AST node (or the root
 ### Basic type checking
 
 node-evolve check that functions references ae not mixed with values.
-For instance, this mutation can't happen with node-evolve:
+For instance, if you define this context:
+
+```CoffeeScript
+context = -> [ Math.PI, Math.cos ]
+```
+
+then this mutation can't happen with node-evolve:
 
 ```CoffeeScript
 var x = Math.PI * Math.cos;
@@ -47,6 +53,7 @@ But this one can:
 var x = Math.PI * Math.cos(Math.PI);
 ```
 
+(behind the hood, node-evolve will automagically detect types)
 
 ### List of supported mutations
 
