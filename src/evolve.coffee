@@ -30,9 +30,11 @@ exports.clone = clone = (opts) ->
 
     debug: no
 
+    ignore_var: no
+
     # reservoir
     context: -> [
-      Math.toto.cos
+      Math.cos
       Math.sin
       Math.random
       Math.PI
@@ -49,7 +51,6 @@ exports.clone = clone = (opts) ->
 
   resolve = (item) ->
     name = ""
-    console.log "resolving #{inspect item}"
     if item[0] is 'dot'
       sub = ""
       if isArray item[1]
@@ -203,7 +204,8 @@ exports.clone = clone = (opts) ->
     results = []
 
     recursive = (node) ->
-
+      if options.debug
+        console.log "#{inspect node, false, 20, true}"
       if isArray node
         found = no
         if node[0]  is 'call'
@@ -227,12 +229,28 @@ exports.clone = clone = (opts) ->
 
 
   constant_tree = copy work.old_ast 
+  if options.debug
+    console.log "\n\n\n\n-------\n\n\n"
+    console.log "items: #{inspect constant_tree, no, 20, yes}"
+    console.log "\n\n\n\n-------\n\n\n"
   mutableResult = searchMutable constant_tree
+  [constant_tree_hook,mutable_tree] = [[],[]]
   if mutableResult.length > 0
+    [constant_tree_hook,mutable_tree] = mutableResult
   else
-    console.log "not found.."
-    return
-  [constant_tree_hook,mutable_tree] = mutableResult
+    if options.debug
+      console.log "did not found mutable section.."
+      console.log "going to mutate everything below the first function.."
+
+
+    constant_tree_hook = constant_tree[1][0][1][3][3]
+    mutable_tree =  copy constant_tree[1][0][1][3][3]
+
+    if options.debug
+      console.log "\n\n\n\n-------\n\n\n"
+      console.log "items: #{inspect constant_tree_hook, no, 20, yes}"
+      console.log "\n\n\n\n-------\n\n\n"
+
 
   mutations = 0
 
