@@ -43,6 +43,7 @@ exports.clone = clone = (opts) ->
     reservoir: 
       callables: []
       constants: []
+      writables: []
 
     clipboard: []
     rules:
@@ -66,7 +67,7 @@ exports.clone = clone = (opts) ->
   items = []
   try
     reservoir_ast = jsp.parse "RESERVOIR = #{options.context.toString()};", {}  
-    items = reservoir_ast[1][0][1][3][3][0][1][1]
+    items = reservoir_ast[1][0][1][3][3][0][1][1] # fuck this shit
     console.log "imported context:"
   catch e
     console.log "couldn't run static analysis of context: #{e}"
@@ -92,15 +93,17 @@ exports.clone = clone = (opts) ->
   options.rules =
       decorators:
         multiply: (type, value) -> 
-          if type is 'num' and P(options.ratio * 0.2)
+          console.log "in multiply(#{type},#{value})"
+          if type is 'num' and P(options.ratio * 1.0)
+            console.log "multiplying.."
             [type, Math.random() * value]
 
         add: (type, value) -> 
-          if type is 'num' and P(options.ratio * 0.2)
+          if type is 'num' and P(options.ratio * 1.0)
             [type, Math.random() + value]
 
         change_operator: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio* 0.3)
+          if type is 'binary' and P(options.ratio* 1.0)
             if options.debug
               console.log "change operator for #{type}, #{operator}, #{a}, #{b}"
 
@@ -112,7 +115,7 @@ exports.clone = clone = (opts) ->
             [type, deck.pick(operators), a, b]
 
         switch_terms: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio *0.1)
+          if type is 'binary' and P(options.ratio * 1.0)
             if options.debug
              console.log "switching terms for #{type}, #{operator}, #{a}, #{b}"
             [type, operator, b, a]
@@ -135,15 +138,16 @@ exports.clone = clone = (opts) ->
 
         # change a read-only variable
         change_read_variable: (type, name, read_variables) ->
-          if type is 'read_variable' and P(options.ratio * 0.1)
+          if type is 'read_variable' and P(options.ratio * 1.0)
             [type, deck.pick(options.reservoir.constants)]
 
-        change_write_variable: (type, name, write_variables) ->
-          if type is 'write_variable' and P(options.ratio * 0.1)
-            [type, name]
+        change_write_variable: (type, x, output, input) ->
+          if type is 'assign' and P(options.ratio * 1.0)
+            console.log "changing assignment"
+            [type, x, deck.pick(options.reservoir.constants), input]
 
         copy_term: (type,name,a,b) ->
-          if type is 'binary' and P(options.ratio * 0.1)
+          if type is 'binary' and P(options.ratio * 1.0)
             node = copy([type,name,a,b])
             if options.debug
               console.log "copying #{inspect node}"
@@ -167,13 +171,13 @@ exports.clone = clone = (opts) ->
 
         # no probability on this one - it is controlled by copy_term
         mutate_string: (type, value) ->
-          if type is 'string' and P(options.ratio * 0.05)
+          if type is 'string' and P(options.ratio * 1.0)
             chars = value.split ''
             other_chars = "abcefghijklmnopqrstuvwxyz0123456789 ".split ''
             new_chars = []
             r = -> chars[Math.round(Math.random() * other_chars.length)]
             for c in chars
-              if P(0.9) 
+              if P(0.5) 
                 new_chars.push c
               else
                 c2 = r()
@@ -198,106 +202,114 @@ exports.clone = clone = (opts) ->
   #  console.log "old_ast: #{work.old_ast}"
   work.context = options.context
 
-  clipboard = []
+  mutations = []
 
-  searchMutable = (node) ->
-    results = []
 
-    recursive = (node) ->
+  ###################
+  # MUTATE A BRANCH #
+  ###################
+  mutateBranch = (branch) ->
+
+    branch_data =
+      callables: []
+      constants: []
+      writables: []
+
+      clipboard: []
+
+    ######################################################
+    # ANALYZE THE BRANCH: EXTRACT WRITABLES (AKA 'VARS') #
+    ######################################################
+    analyze = (parent, id) ->
+      console.log "analyze(#{parent},#{id})"
+      console.log "checking: #{inspect parent[id], no, 20, yes}"
+      if isArray parent[id]
+        console.log "is array. first try to apply decorators"
+        type = parent[id][0] 
+        if type is 'var'
+          for w in parent[id][1]
+            writable = ['name', w]
+            branch_data.writables.push writable
+        else if type is 'assign'
+          writable = copy parent[id][2] # might be a name or a dot
+          branch_data.writables.push writable
+        for i in [0...parent[id].length]
+          do (i) ->
+            analyze parent[id], i++
+      analyze [branch], 0
+
+    transform = (parent, id) ->
+      console.log "recursive(#{parent},#{id})"
+      console.log "checking: #{inspect parent[id], no, 20, yes}"
+      if isArray parent[id]
+        console.log "is array. first try to apply decorators"
+        type = parent[id][0] 
+        if type in [ 'num', 'binary', 'string', 'assign' ]
+          console.log "applying rules"
+          for decoratorName, decorator of options.rules.decorators
+            do (decoratorName, decorator) ->
+              res = decorator parent[id]...
+              if isArray res
+                mutations += 1
+                parent[id] = res
+        console.log "then iterate over children recursively"
+        for i in [0...parent[id].length]
+          do (i) ->
+            transform parent[id], i++
+
+    #############################
+    # APPLY MULTIPLE ITERATIONS #
+    #############################
+
+    # this serves many purposes: 
+    # first, it is the main mecanism for copy-pasting blocks:
+    # an iteration may copy data to a clipboard, and paste it else where
+    # but also, this can create crazy compound mutations:
+    # eg. 2 mutations: a copy and a multiplication, when applied individually
+    # may kill the program, but when both are applied at the same time it works: 
+    # this scenario can be solved by our iteration mecanism 
+    nb iterations = 1
+    for i in [0..nb_iterations]
+      console.log "ITERATION #{i}"
+      transform [branch], 0
+      console.log "new branch: #{inspect branch, no, 20, yes}"
+
+  #################################################################
+  # MUTATE CODE: IT TRIES FIRST TO MUTATE EVOLVE() BLOCKS, BUT IF #
+  # NOTHING IS FOUND THEN IT FALLBACK TO MUTATING FIRST FUNCTION  #
+  #################################################################
+  mutateTree = (tree) ->
+    found = no
+    search = (node) ->
       if options.debug
         console.log "#{inspect node, false, 20, true}"
       if isArray node
-        found = no
-        if node[0]  is 'call'
-          if node[1][0] is 'dot'
-            if isArray node[1][1] 
-              if node[1][1][0] is 'name' and node[1][1][1] is 'evolve'
-                if node[1][2] is 'mutable'
-                  found = yes
-          else if node[1][0] is 'name'
-            if node[1][1] is 'mutable'
-              found = yes
-        
-        if found
-          results = [node,copy(node[2][0][3])]
+        if node[0] is 'call'
+          if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
+            found = yes
+            node[2][0][3] = mutateBranch copy node[2][0][3]
         else
           for n in node
-            recursive n
-    recursive node
+            search n
+    search tree
+    #############################################
+    # FALL BACK TO MUTATING THE FIRST FUNCTION  #
+    #############################################
+    unless found
+      branch = []
+      try
+        branch = copy tree[1][0][1][3][3]
+      catch e
+        console.log "couldn't find first function, aborting: #{e}"
+      if branch.length > 0
+        console.log "found function! mutating it.."
+        tree[1][0][1][3][3] = mutateBranch branch
+    tree
 
-    results
+  work.new_ast = mutateTree copy work.old_tree
 
-
-  constant_tree = copy work.old_ast 
-  if options.debug
-    console.log "\n\n\n\n-------\n\n\n"
-    console.log "items: #{inspect constant_tree, no, 20, yes}"
-    console.log "\n\n\n\n-------\n\n\n"
-  mutableResult = searchMutable constant_tree
-  [constant_tree_hook,mutable_tree] = [[],[]]
-  if mutableResult.length > 0
-    [constant_tree_hook,mutable_tree] = mutableResult
-  else
-    if options.debug
-      console.log "did not found mutable section.."
-      console.log "going to mutate everything below the first function.."
-
-
-    constant_tree_hook = constant_tree[1][0][1][3][3]
-    mutable_tree =  copy constant_tree[1][0][1][3][3]
-
-    if options.debug
-      console.log "\n\n\n\n-------\n\n\n"
-      console.log "items: #{inspect constant_tree_hook, no, 20, yes}"
-      console.log "\n\n\n\n-------\n\n\n"
-
-
-  mutations = 0
-
-  passOne = ->
-
-    recursive = (parent, id) ->
-      if isArray parent[id]
-        i = 0
-        for n in parent[id]
-          recursive parent[id], i++
-
-      # NOT A BUG
-
-      if isArray parent[id]
-        if parent[id][0] in [ 'num', 'binary', 'string' ]
-          for decoratorName, decorator of options.rules.decorators
-            res = decorator parent[id]...
-            if isArray res
-              mutations += 1
-              parent[id] = res
-
-
-    recursive [mutable_tree], 0
-
-    if options.debug
-      console.log "pass one"
-
-  passOne()
-  
-  # todo rather than a pass one and two, maybe just do N iterations?
-
-  # second pass, to past elements of the clipboard
-  passTwo = ->
-    if options.debug
-      console.log "pass two"
-
-  passTwo()
-  
-  if options.debug
-    console.log "mutable_tree: #{inspect mutable_tree, no, 20, yes}"
-
-  constant_tree_hook[2][0][3] = mutable_tree
-
-  work.new_ast = copy constant_tree
-
-  if options.debug
-    console.log "new_ast: #{inspect work.new_ast, no, 20, yes}"
+  #if options.debug
+  console.log "new_ast: #{inspect work.new_ast, no, 20, yes}"
 
   console.log "done #{mutations} mutations"
   if options.debug
