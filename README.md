@@ -1,15 +1,16 @@
 node-evolve
 ===========
 
-A library for evolving Javascript functions * UNRELEASED *
+A library for evolving Javascript functions - UNRELEASED
 
 ## Summary
 
 node-evolve is a library for mutating Javascript functions:
 
-It works by mutating functions source code, like a programmer would do.
-The best part: if you attach it to a higher-level genetic algorithm library
-(there are some on GitHub), you can do genetic programming. How cool is that?
+It works by walking over the AST tree and applying random mutations.
+
+So, yes: if you attach it to a higher-level genetic algorithm library
+(there are some on GitHub), this is genetic programming. How cool is that?
 
 Outside military and partying purposes, you can use it to find better parameters, or even new algorithms, thanks to its complex mutation features.
 
@@ -17,8 +18,8 @@ Don't use it mindlessly! After all, it is designed to introduce errors in your c
 
 ## WARNING
 
-  node-evolve is still in development, and won't solve all problems for you:
-  no matter how powerful it might me, you still have to design your program cleverly and carefully.
+  node-evolve is still in development and won't solve all problems for you:
+  no matter how powerful it might looks like, you still have to design your program - and your problem - carefully.
 
 ## Installation
 
