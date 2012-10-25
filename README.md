@@ -10,7 +10,10 @@ node-evolve is a library for mutating Javascript functions:
 It works by walking over the AST tree and applying random mutations.
 
 So, yes: if you attach it to a higher-level genetic algorithm library
-(there are some on GitHub), this is genetic programming. How cool is that?
+(there are some on GitHub), you can use it for GP (genetic programming). 
+Actually, this is dynamic meta GP, since you could grow, say, 
+a program which dynamically mutate and replicate itself at runtime.
+How cool is that?
 
 Outside military and partying purposes, you can use it to find better parameters, or even new algorithms, thanks to its complex mutation features.
 
