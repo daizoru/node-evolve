@@ -22,7 +22,7 @@ Don't use it mindlessly! After all, it is designed to introduce errors in your c
 
 ## Installation
 
-  Since node-evolve is not released it, you have to install it using:
+  Since node-evolve is not released yet, you have to install it using:
 
     $ npm install git://github.com/daizoru/node-evolve.git
 
@@ -30,12 +30,11 @@ Don't use it mindlessly! After all, it is designed to introduce errors in your c
 
 ### Radioactive batteries included
 
-A collection of various mutation is packaged with node-evolve.
-This include random insert, replace, delete of AST nodes, numbers, strings..
-This can thus reproduce common software writing errors (or improvements).
+Various mutators are already available in node-evolve:
+random insert, replace, delete of AST nodes, numbers, strings..
 
-### Support for multiples iterations
-
+### EXPERIMENTAL - Support for multiples iterations
+ 
 It can apply more than one layer of mutation:
 For instance, one iteration might copy AST nodes to a buffer,
 and another may paste the content to overwrite or insert data.
@@ -112,34 +111,35 @@ Since variables and functions passed in context are read-only
 
   Numerical values are subject to mutation, like random multiplication or addition.
 
-#### Strings
-
-  Strings are also supported.
-  Mutation is done by operators like add, delete, move and substitution.
-
-#### Block copying, cutting & pasting
-
-  This mutation copy or cut a node of the AST tree to another place.
-  It may replace a node or insert between two.
-
 #### Binary operator substitution
 
   Operator of binary operations may be substituted by any operator
   of this list: + - * /
 
-#### Binary operation switch
+#### Binary operator switching
 
   This mutation simply switch two terms of an operation,
   eg. 10.0 / 5.0 becomes 5.0 / 10.0. 
 
-#### Variable substitution
+#### EXPERIMENTAL - String mutation, levenshtyle.
 
-  Any variable is subject to change and remplacement by another variable
+  String mutation is supported, and done using atomic operators like add, delete, move and substitution. However it is still experimental, and doesn't offer
+  much control over which ASCII characters are allowed, forbidden,
+  constants strings, collections of strings.. you have to implement this
+  yourself for the moment (using Rules)
 
+#### EXPERIMENTAL - Block copying, cutting & pasting
+
+  This mutation copy or cut a node of the AST tree to another place.
+  It may replace a node or insert between two.
+
+#### EXPERIMENTAL - Variable substitution
+
+  Any variable is subject to change and remplacement by another variable.
 
 ## How-to
 
-### Usage in command line
+### Use it in command line
 
   $ evolve path/to/sourcefile.js [debug]
 
