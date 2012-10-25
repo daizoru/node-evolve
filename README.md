@@ -22,9 +22,9 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 ### Radioactive batteries included
 
-A collection of mutation is already included, 
-like delete, insert, substitution.. of AST nodes, numbers, strings..
-This can imulating various software writing errors (or genius improvements!)
+A collection of various mutation is packaged with node-evolve.
+This include random insert, replace, delete of AST nodes, numbers, strings..
+This can thus reproduce common software writing errors (or improvements).
 
 ### Support for multiples iterations
 
