@@ -20,11 +20,21 @@ selection logic (mating algorithms, fitness function, Pareto frontier..)
 
 ## Features 
 
-### library of mutations
+### Radioactive batteries included
 
-A serie of mutation is already available
+A collection of mutation is already included, 
+like delete, insert, substitution.. of AST nodes, numbers, strings..
+This can imulating various software writing errors (or genius improvements!)
 
-### Fast constrained mutation
+### Support for multiples iterations
+
+It can apply more than one layer of mutation:
+For instance, one iteration might copy AST nodes to a buffer,
+and another may paste the content to overwrite or insert data.
+
+Use this feature to create complex, combined mutations.
+
+### Constrained syntax and semantics
 
 node-evolve will try hard to avoid useless or bad mutations - your code will already have a hard time surviving its first eval() anyway!
 
@@ -57,9 +67,10 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 You can input your own rules, if they can be applied to an AST node (or the root node of the whole tree).
 
-### Type safety
+### Simple type checking
 
-node-evolve check that functions references are not mixed with values.
+node-evolve check that incompatible references are not mixed.
+
 For instance, if you define this context:
 
 ```CoffeeScript

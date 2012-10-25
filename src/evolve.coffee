@@ -238,9 +238,11 @@ exports.clone = clone = (opts) ->
             analyze parent[id], i++
       analyze [branch], 0
 
+    #################################################
+    # MAIN FUNCTION: MUTATE RECURSIVELY AN AST TREE #
+    #################################################
     transform = (parent, id) ->
-      console.log "recursive(#{parent},#{id})"
-      console.log "checking: #{inspect parent[id], no, 20, yes}"
+      console.log "recursive(#{parent},#{id})\nchecking: #{inspect parent[id], no, 20, yes}"
       if isArray parent[id]
         console.log "is array. first try to apply decorators"
         type = parent[id][0] 
@@ -306,6 +308,9 @@ exports.clone = clone = (opts) ->
         tree[1][0][1][3][3] = mutateBranch branch
     tree
 
+  ################################
+  # MUTATE THE PROGRAM TREE ROOT #
+  ################################
   work.new_ast = mutateTree copy work.old_tree
 
   #if options.debug
@@ -321,11 +326,12 @@ exports.clone = clone = (opts) ->
     quote_keys: no # – if you pass true it will quote all keys in literal objects
     space_colon: no # (only applies when beautify is true) – wether to put a space before the colon in object literals
 
-
   options.onComplete work.new_src
 
 
-# mutate replace a function inline!
+###############################################
+# LIVE MUTATION AND REPLACEMENT OF A FUNCTION #
+###############################################
 exports.mutate = mutate = (options) ->
   if options.debug
     console.log "mutate options: #{inspect options}"
@@ -334,14 +340,14 @@ exports.mutate = mutate = (options) ->
     debug: options.debug
     ratio: options.ratio
     onComplete: (new_src) ->
-
-      newFunction = eval new_src
-
+      newFunction = eval new_src # interpret the code to create the func
       console.log "replaced function with #{newFunction}"
       options.obj[options.func] = newFunction
       options.onComplete()
 
-# mutate replace a function inline!
+#############################################################
+# READ A FILE AND MUTATE IT - SPIT OUT OUTPUT TO A CALLBACK #
+#############################################################
 exports.readFile = readFile = (opts) ->
   options =
     file: ''
