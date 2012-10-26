@@ -1,5 +1,8 @@
 jsp = require "../node_modules/uglify-js/lib/parse-js"
 pro = require "../node_modules/uglify-js/lib/process"
+cs2js = require('../node_modules/coffee-script').compile
+js2cs = require('../node_modules/js2coffee/lib/js2coffee').build
+
 fs = require 'fs'
 {inspect} = require 'util'
 {async} = require 'ragtime'
@@ -25,18 +28,34 @@ exports.clone = clone = (opts) ->
 
   options = 
     src       : ""
-    ratio     : 0.001
-    iterations: 1
+    ratio     : 0.01
+    iterations: 2
     pretty    : yes
     debug     : no
     ignore_var: no
+    isCoffee  : no
 
     # global context - user-provided
     context: -> [
-      Math.cos
-      Math.sin
-      Math.random
-      Math.PI
+      Math.abs    # the absolute value of a
+      Math.acos   # arc cosine of a
+      Math.asin   # arc sine of a
+      Math.atan   # arc tangent of a
+      Math.atan2  # arc tangent of a/b
+      Math.ceil   # integer closest to a and not less than a
+      Math.cos    # cosine of a
+      Math.exp    # exponent of a (Math.E to the power a)
+      Math.floor  # integer closest to a, not greater than a
+      Math.log    # log of a base e
+      Math.max    # the maximum of a and b
+      Math.min    # the minimum of a and b
+      Math.pow    # a to the power b
+      Math.random # pseudorandom number 0 to 1 (see examples)
+      Math.round  # integer closest to a (see rounding examples)
+      Math.sin    # sine of a
+      Math.sqrt   # square root of a
+      Math.tan    # tangent of a
+      Math.PI 
     ]
   
   # global data - shared among branchs
@@ -115,11 +134,16 @@ exports.clone = clone = (opts) ->
 
   if options.debug
     console.log "old_src: #{work.old_src}"
+
+  if options.isCoffee
+    work.old_src = cs2js work.old_src, bare: yes
+    if options.debug
+      console.log "old_src: #{work.old_src}"
+    
   try
     work.old_ast = jsp.parse work.old_src, {}
   catch e
     console.log e.message
-
 
   ###################
   # MUTATE A BRANCH #
@@ -219,14 +243,19 @@ exports.clone = clone = (opts) ->
     # FALL BACK TO MUTATING THE FIRST FUNCTION  #
     #############################################
     unless found
-      branch = []
+      branch = undefined
       try
-        branch = copy tree[1][0][1][3][3]
+        branch = tree#[1][0][1][3][3]
       catch e
-        console.log "couldn't find first function, aborting: #{e}"
-      if branch.length > 0
-        console.log "found function! mutating it.."
-        tree[1][0][1][3][3] = mutateBranch branch
+        if options.debug
+          console.log "couldn't find first function, aborting: #{e}"
+      if branch
+        if options.debug
+          console.log "found function! mutating it.."
+        tree = mutateBranch copy branch
+      else
+        if options.debug
+          console.log "could not find branch"
     tree
 
   if options.debug
@@ -236,6 +265,14 @@ exports.clone = clone = (opts) ->
   # MUTATE THE PROGRAM TREE ROOT #
   ################################
   work.new_ast = mutateTree copy work.old_ast
+
+  if options.isCoffee
+    try
+      if work.new_ast[1][0][0] is 'var'
+        work.new_ast[1].shift()
+    catch e
+      if options.debug
+        console.log "no var? good thing? #{e}"
 
   if options.debug
     console.log "new AST: #{inspect work.new_ast, no, 20, yes}"
@@ -250,6 +287,9 @@ exports.clone = clone = (opts) ->
     quote_keys  : no  #  if you pass true it will quote all keys in literal objects
     space_colon : no # (only applies when beautify is true) – wether to put a space before the colon in object literals
 
+  if options.isCoffee
+    work.new_src = js2cs work.new_src, no_comments: no
+
   options.onComplete work.new_src
 
 
@@ -259,9 +299,10 @@ exports.clone = clone = (opts) ->
 exports.mutate = mutate = (options) ->
   clone 
     src       : options.obj[options.func].toString()
-    debug     : options.debug
-    ratio     : options.ratio
-    iterations: options.iterations
+    isCoffee  : options.isCoffee   ? no
+    debug     : options.debug      ? no
+    ratio     : options.ratio      ? 0.01
+    iterations: options.iterations ? 2
     onComplete: (new_src) ->
       newFunction = eval new_src # interpret the code to create the func
       if options.debug
@@ -277,7 +318,7 @@ exports.readFile = readFile = (opts) ->
     file      : ''
     encoding  : 'utf-8'
     debug     : no
-    ratio     : 0.001
+    ratio     : 0.01
     iterations: 1
     onError: (err) ->
   for k,v of opts
@@ -290,8 +331,10 @@ exports.readFile = readFile = (opts) ->
       async -> options.onError err
       return
 
+    isCoffee = options.file[-7..] is ".coffee"
     clone 
       src       : src
+      isCoffee  : isCoffee
       debug     : options.debug
       ratio     : options.ratio
       iterations: options.iterations
@@ -332,7 +375,7 @@ exports.cli = main = ->
     config.file = file
     readFile config
 
-  # OR ELSE IGNITE SELF-MUTATION
+  # OR ELSE READ STDIN
   else
     config.src = fs.readFileSync('/dev/stdin').toString()
     clone config

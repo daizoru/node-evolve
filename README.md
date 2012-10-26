@@ -145,11 +145,11 @@ Since variables and functions passed in context are read-only
 
 ### Use it in command line
 
-  $ evolve src [ratio=0.42] [debug]
+    $ evolve src [ratio=0.42] [debug]
 
 Example :
 
-  $ evolve examples/evolvable.js ratio=0.10
+    $ evolve examples/evolvable.js ratio=0.10
 
 ```JavaScript
 mutable(function() {
@@ -260,30 +260,46 @@ context = -> [
   Math.PI
 ]
 
-evolve.mutate 
-  obj: A
-  func: 'B'
-  context: context
-  onComplete: -> # ..
+evolve.mutate context: context, .....
 ```
 
 #### Customize the mutation rules
 
-```CoffeeScruipt
+```CoffeeScript
 rules =
 
   # decorators are applied on each node, and expected to return either
   # the current, new or modified node, or an undefined value (then it is ignored)
   decorators:
-    multiply: (type, value) -> 
-      if type is 'num' and P(0.87) then [type, Math.random() * value]
+    multiply: (t, value) -> 
+      if t is 'num' and Math.random() < 0.5 then [t, Math.random() * value]
 
 
 ```
 
 ## Examples
 
-### Basic example
+### Replicator program
+
+This CoffeeScript program replicates itself, with some mutations:
+
+```CoffeeScript
+evolve = require('evolve')
+mutation_rate = .001
+foo = .20
+evolve.mutable ->
+  foo = foo * 0.10
+  mutation_rate = Math.cos(0.001) + Math.sin(0.5)
+  mutation_rate = mutation_rate / foo
+evolve.readFile
+  ratio: mutation_rate
+  file: process.argv[1]
+  debug: false
+  onComplete: (src) ->
+    console.log src
+``
+
+### More examples
 
 See /examples
 

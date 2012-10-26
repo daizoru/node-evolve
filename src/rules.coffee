@@ -2,7 +2,7 @@
 {inspect} = require 'util'
 deck = require 'deck'
 
-copy = (a) -> JSON.parse(JSON.stringify(a))
+copy = (a) -> JSON.parse JSON.stringify a
 
 P           = (p=0.5) -> + (Math.random() < p)
 isFunction  = (obj) -> !!(obj and obj.constructor and obj.call and obj.apply)
@@ -52,10 +52,11 @@ exports.makeRules = makeRules = (options, globals, locals, clipboard) ->
   ########################
   opchange: (t, o, a, b) ->
     if t is 'binary' and p.opchange()
-      idx = operators.indexOf o
+      ops = copy operators
+      idx = ops.indexOf o
       if idx != -1  
-        operators.splice idx, 1
-      [t, deck.pick(operators), a, b]
+        ops.splice idx, 1
+      [t, deck.pick(ops), a, b]
 
   termswitch: (t, o, a, b) ->
     if t is 'binary' and p.termswitch() then [t, o, b, a]
