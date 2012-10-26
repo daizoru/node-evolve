@@ -145,7 +145,20 @@ Since variables and functions passed in context are read-only
 
 ### Use it in command line
 
-  $ evolve path/to/sourcefile.js [debug]
+  $ evolve src [ratio=0.42] [debug]
+
+Example :
+
+  $ evolve examples/evolvable.js ratio=0.10
+
+```JavaScript
+mutable(function() {
+    a = x * 1;
+    b = y * 1;
+    z = "hello";
+    return c = 1.4881885522045195 * z;
+});
+```
 
 ### Using the API
 

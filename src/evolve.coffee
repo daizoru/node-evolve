@@ -5,6 +5,8 @@ fs = require 'fs'
 {async} = require 'ragtime'
 deck = require 'deck'
 
+{makeRules} = require './rules'
+
 copy = (a) -> JSON.parse(JSON.stringify(a))
 
 P           = (p=0.5) -> + (Math.random() < p)
@@ -22,34 +24,31 @@ exports.toAST = toAST = (f) -> jsp.parse f.toString()
 exports.clone = clone = (opts) -> 
 
   options = 
-
-    src: ""
-    ratio: 0.001
-
-    pretty: yes
-
-    debug: no
-
+    src       : ""
+    ratio     : 0.001
+    iterations: 1
+    pretty    : yes
+    debug     : no
     ignore_var: no
 
-    # reservoir
+    # global context - user-provided
     context: -> [
       Math.cos
       Math.sin
       Math.random
       Math.PI
     ]
+  
+  # global data - shared among branchs
+  globals = 
+    callables: []
+    readables: []
+    writables: []
 
-    reservoir: 
-      callables: []
-      constants: []
-      writables: []
+  mutations = 0 # simple stats for debug
 
-    clipboard: []
-    rules:
-      decorators: {}
-
-
+  # Transform any path eg. like: ['dot', ['name','foo'], 'bar'] 
+  # to 'foo.bar', recursively.
   resolve = (item) ->
     name = ""
     if item[0] is 'dot'
@@ -61,16 +60,24 @@ exports.clone = clone = (opts) ->
       name = "#{sub}.#{item[2]}"
     else if item[0] is 'name'
       name = item[1]
-  
     name
 
+  ##########################################################
+  #         ANALYSIS OF CONTEXT: TYPE DETECTION            #
+  # FIRST WE PARSE THE USER-PROVIDED CONTEXT SOURCE TO AST #
+  ##########################################################
   items = []
   try
     reservoir_ast = jsp.parse "RESERVOIR = #{options.context.toString()};", {}  
     items = reservoir_ast[1][0][1][3][3][0][1][1] # fuck this shit
-    console.log "imported context:"
+    if options.debug
+      console.log "imported context:"
   catch e
     console.log "couldn't run static analysis of context: #{e}"
+
+  ###########################################################
+  # THEN FOR EACH ENTRY, WE EVALUATE AND TRY TO DETECT TYPE #
+  ###########################################################
   for item in items
     name = resolve item
     i = undefined
@@ -79,130 +86,39 @@ exports.clone = clone = (opts) ->
     catch e
       console.log "error when checking #{name}: #{e}"
       continue
+
+    #####################################################
+    # FINALLY WE PUT THE AST NODE IN THE RIGHT CATEGORY #
+    #####################################################
     if isFunction i
-      console.log " - #{name} is a function"
-      options.reservoir.callables.push name
+      if options.debug
+        console.log " - #{name} is a function"
+      globals.callables.push name
     else if isArray i
-      console.log " - #{name} is an array - not supported yet"
+      if options.debug
+        console.log " - #{name} is an array - not supported yet"
     else if isNumber i
-      console.log " - #{name} is a number"
-      options.reservoir.constants.push name
+      if options.debug
+        console.log " - #{name} is a number"
+      globals.readables.push name
     else
-      console.log " - type of #{name} couldn't be found (value: #{i})"
+      if options.debug
+        console.log " - type of #{name} couldn't be found (value: #{i})"
 
-  options.rules =
-      decorators:
-        multiply: (type, value) -> 
-          console.log "in multiply(#{type},#{value})"
-          if type is 'num' and P(options.ratio * 1.0)
-            console.log "multiplying.."
-            [type, Math.random() * value]
-
-        add: (type, value) -> 
-          if type is 'num' and P(options.ratio * 1.0)
-            [type, Math.random() + value]
-
-        change_operator: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio* 1.0)
-            if options.debug
-              console.log "change operator for #{type}, #{operator}, #{a}, #{b}"
-
-            operators = ['+','-','*','/']
-         
-            idx = operators.indexOf operator
-            if idx != -1  
-              operators.splice idx, 1
-            [type, deck.pick(operators), a, b]
-
-        switch_terms: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio * 1.0)
-            if options.debug
-             console.log "switching terms for #{type}, #{operator}, #{a}, #{b}"
-            [type, operator, b, a]
-
-        delete_term: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio * 0.0)
-            if options.debug
-              console.log "deleting term for #{type}, #{operator}, #{a}, #{b}"
-            if P 0.5 then a else b
-
-        duplicate_term: (type, operator, a, b) ->
-          if type is 'binary' and P(options.ratio * 0.0)
-            if options.debug
-              console.log "duplicate_term for #{type}, #{operator}, #{a}, #{b}"
-            cpy = copy [type, operator, a, b]
-            if P 0.5
-              [type, operator, cpy, b]
-            else 
-              [type, operator, a, cpy]
-
-        # change a read-only variable
-        change_read_variable: (type, name, read_variables) ->
-          if type is 'read_variable' and P(options.ratio * 1.0)
-            [type, deck.pick(options.reservoir.constants)]
-
-        change_write_variable: (type, x, output, input) ->
-          if type is 'assign' and P(options.ratio * 1.0)
-            console.log "changing assignment"
-            [type, x, deck.pick(options.reservoir.constants), input]
-
-        copy_term: (type,name,a,b) ->
-          if type is 'binary' and P(options.ratio * 1.0)
-            node = copy([type,name,a,b])
-            if options.debug
-              console.log "copying #{inspect node}"
-            options.clipboard.push node
-            node
-
-        # no probability on this one - it is controlled by copy_term
-        paste_replace: (type, operator, a, b) ->
-          if type is 'binary' and options.clipboard.length > 0
-            options.clipboard[0]
-            options.clipboard.shift()
-
-        # no probability on this one - it is controlled by copy_term
-        paste_insert: (type, operator, a, b) ->
-          if type is 'binary' and options.clipboard.length > 0
-            node = options.clipboard[0]
-            options.clipboard.shift()
-            t = if P(0.5) then 2 else 3
-            node[t] = [type, operator, a, b]
-            node
-
-        # no probability on this one - it is controlled by copy_term
-        mutate_string: (type, value) ->
-          if type is 'string' and P(options.ratio * 1.0)
-            chars = value.split ''
-            other_chars = "abcefghijklmnopqrstuvwxyz0123456789 ".split ''
-            new_chars = []
-            r = -> chars[Math.round(Math.random() * other_chars.length)]
-            for c in chars
-              if P(0.5) 
-                new_chars.push c
-              else
-                c2 = r()
-                unless isUndefined c2
-                  new_chars.push c2
-            ['string', new_chars.join('')]
-
+  # use use-provided options - except rules which are not supported yet
   for k,v of opts
-    options[k] = v
+    unless k is 'rules'
+      options[k] = v
 
   work = {}
   work.old_src = options.src
 
-  #if options.debug
-  #  console.log "old_src: #{work.old_src}"
+  if options.debug
+    console.log "old_src: #{work.old_src}"
   try
-    work.old_ast = jsp.parse "ENDPOINT = #{work.old_src};", {}
+    work.old_ast = jsp.parse work.old_src, {}
   catch e
     console.log e.message
-  
-  #if options.debug
-  #  console.log "old_ast: #{work.old_ast}"
-  work.context = options.context
-
-  mutations = []
 
 
   ###################
@@ -210,54 +126,55 @@ exports.clone = clone = (opts) ->
   ###################
   mutateBranch = (branch) ->
 
-    branch_data =
+    locals =
       callables: []
-      constants: []
+      readables: []
       writables: []
-
-      clipboard: []
+    clipboard = []
 
     ######################################################
     # ANALYZE THE BRANCH: EXTRACT WRITABLES (AKA 'VARS') #
     ######################################################
     analyze = (parent, id) ->
-      console.log "analyze(#{parent},#{id})"
-      console.log "checking: #{inspect parent[id], no, 20, yes}"
+      #console.log "analyze(#{parent},#{id})"
+      #console.log "checking: #{inspect parent[id], no, 20, yes}"
       if isArray parent[id]
-        console.log "is array. first try to apply decorators"
         type = parent[id][0] 
         if type is 'var'
           for w in parent[id][1]
             writable = ['name', w]
-            branch_data.writables.push writable
+            locals.writables.push writable
         else if type is 'assign'
           writable = copy parent[id][2] # might be a name or a dot
-          branch_data.writables.push writable
+          locals.writables.push writable
         for i in [0...parent[id].length]
           do (i) ->
             analyze parent[id], i++
       analyze [branch], 0
 
+
+    #######################
+    # MAKE MUTATION RULES #
+    #######################
+    rules = makeRules options, globals, locals, clipboard
+
+
     #################################################
     # MAIN FUNCTION: MUTATE RECURSIVELY AN AST TREE #
     #################################################
     transform = (parent, id) ->
-      console.log "recursive(#{parent},#{id})\nchecking: #{inspect parent[id], no, 20, yes}"
+      #console.log "recursive(#{parent},#{id})\nchecking: #{inspect parent[id], no, 20, yes}"
       if isArray parent[id]
-        console.log "is array. first try to apply decorators"
+        #console.log "is array. first try to apply rules"
         type = parent[id][0] 
-        if type in [ 'num', 'binary', 'string', 'assign' ]
-          console.log "applying rules"
-          for decoratorName, decorator of options.rules.decorators
-            do (decoratorName, decorator) ->
-              res = decorator parent[id]...
-              if isArray res
-                mutations += 1
-                parent[id] = res
-        console.log "then iterate over children recursively"
+        for name, rule of rules
+          res = rule parent[id]...
+          if isArray res
+            mutations += 1
+            parent[id] = res
+        #console.log "then iterate over children recursively"
         for i in [0...parent[id].length]
-          do (i) ->
-            transform parent[id], i++
+          transform parent[id], i++
 
     #############################
     # APPLY MULTIPLE ITERATIONS #
@@ -270,21 +187,25 @@ exports.clone = clone = (opts) ->
     # eg. 2 mutations: a copy and a multiplication, when applied individually
     # may kill the program, but when both are applied at the same time it works: 
     # this scenario can be solved by our iteration mecanism 
-    nb iterations = 1
-    for i in [0..nb_iterations]
-      console.log "ITERATION #{i}"
+    for i in [0..options.iterations]
+      if options.debug
+        console.log "ITERATION #{i}"
       transform [branch], 0
-      console.log "new branch: #{inspect branch, no, 20, yes}"
+      if options.debug
+        console.log "new branch: #{inspect branch, no, 20, yes}"
+    branch
 
-  #################################################################
-  # MUTATE CODE: IT TRIES FIRST TO MUTATE EVOLVE() BLOCKS, BUT IF #
-  # NOTHING IS FOUND THEN IT FALLBACK TO MUTATING FIRST FUNCTION  #
-  #################################################################
+  #####################################################
+  # MUTATE CODE: FIRST TRY TO MUTATE EVOLVE() BLOCKS, #
+  # ELSE TRY TO FALLBACK TO FIRST FUNCTION            #
+  #####################################################
   mutateTree = (tree) ->
     found = no
+
+    #####################################################
+    # RECURSIVE SEARCH FOR ALL (evolve.?)mutable BLOCKS #
+    #####################################################
     search = (node) ->
-      if options.debug
-        console.log "#{inspect node, false, 20, true}"
       if isArray node
         if node[0] is 'call'
           if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
@@ -308,23 +229,26 @@ exports.clone = clone = (opts) ->
         tree[1][0][1][3][3] = mutateBranch branch
     tree
 
+  if options.debug
+    console.log "old AST: #{inspect work.old_ast, no, 20, yes}\n\n\n\n"
+  
   ################################
   # MUTATE THE PROGRAM TREE ROOT #
   ################################
-  work.new_ast = mutateTree copy work.old_tree
+  work.new_ast = mutateTree copy work.old_ast
 
-  #if options.debug
-  console.log "new_ast: #{inspect work.new_ast, no, 20, yes}"
-
-  console.log "done #{mutations} mutations"
   if options.debug
-    console.log "generating code.."
+    console.log "new AST: #{inspect work.new_ast, no, 20, yes}"
+
+  if options.debug
+    console.log "applied #{mutations} mutations. generating code.."
+
   work.new_src = pro.gen_code work.new_ast, 
-    beautify: options.pretty # – pass true if you want indented output
-    indent_start: 0 # (only applies when beautify is true) – initial indentation in spaces
-    indent_level: 4 #(only applies when beautify is true) – indentation level, in spaces (pass an even number)
-    quote_keys: no # – if you pass true it will quote all keys in literal objects
-    space_colon: no # (only applies when beautify is true) – wether to put a space before the colon in object literals
+    beautify    : options.pretty # – pass true if you want indented output
+    indent_start: 0 # only applies when beautify is true – initial indentation in spaces
+    indent_level: 4 # only applies when beautify is true – indentation level, in spaces (pass an even number)
+    quote_keys  : no  #  if you pass true it will quote all keys in literal objects
+    space_colon : no # (only applies when beautify is true) – wether to put a space before the colon in object literals
 
   options.onComplete work.new_src
 
@@ -333,15 +257,15 @@ exports.clone = clone = (opts) ->
 # LIVE MUTATION AND REPLACEMENT OF A FUNCTION #
 ###############################################
 exports.mutate = mutate = (options) ->
-  if options.debug
-    console.log "mutate options: #{inspect options}"
   clone 
-    src: options.obj[options.func].toString()
-    debug: options.debug
-    ratio: options.ratio
+    src       : options.obj[options.func].toString()
+    debug     : options.debug
+    ratio     : options.ratio
+    iterations: options.iterations
     onComplete: (new_src) ->
       newFunction = eval new_src # interpret the code to create the func
-      console.log "replaced function with #{newFunction}"
+      if options.debug
+        console.log "replaced function with #{newFunction}"
       options.obj[options.func] = newFunction
       options.onComplete()
 
@@ -350,17 +274,14 @@ exports.mutate = mutate = (options) ->
 #############################################################
 exports.readFile = readFile = (opts) ->
   options =
-    file: ''
-    encoding: 'utf-8'
-    debug: no
-    ratio: 0.001
+    file      : ''
+    encoding  : 'utf-8'
+    debug     : no
+    ratio     : 0.001
+    iterations: 1
     onError: (err) ->
   for k,v of opts
     options[k] = v
-
-
-  #if options.debug
-  #  console.log "mutate options: #{inspect options}"
 
   fs.readFile options.file, options.encoding, (err, src) ->
     #console.log "loaded : "
@@ -370,9 +291,10 @@ exports.readFile = readFile = (opts) ->
       return
 
     clone 
-      src: src
-      debug: options.debug
-      ratio: options.ratio
+      src       : src
+      debug     : options.debug
+      ratio     : options.ratio
+      iterations: options.iterations
       onComplete: (new_src) ->
         options.onComplete new_src
 
@@ -380,45 +302,39 @@ exports.readFile = readFile = (opts) ->
 # simple marker
 exports.mutable = mutable = (f) -> f()
 
+########################
+# COMMAND-LINE PROGRAM # 
+########################
 exports.cli = main = ->
-  ratio = 0.001
-  if ('+' in process.argv)
-    ratio = 0.01
-  else if ('++' in process.argv) 
-    ratio = 0.05
-  else if ('+++' in process.argv)
-    ratio = 0.10
-  else if ('++++' in process.argv)
-    ratio = 0.20
-  else if ('+++++' in process.argv)
-    ratio = 0.40
-  else if ('++++++' in process.argv)
-    ratio = 0.60
-  else if ('+++++++' in process.argv)
-    ratio = 0.80
-  else if ('++++++++' in process.argv)
-    ratio = 0.90
-  console.log "ratio: #{ratio}"
 
-  if process.argv.length > 2
-    readFile
-      debug: ('debug' in process.argv)
-      pretty: ('pretty' in process.argv)
-      encoding: 'utf-8'
-      file: process.argv[2]
-      ratio: ratio
-      onError: (err) -> 
-        console.log "error: #{err}"
-        throw err
-      onComplete: (src) -> console.log src
+  # PARSE COMMAND-LINE ARGUMENTS
+  args       = process.argv
+  nb_args    = args.length
+  file       = args[2]
+  debug      = ('debug'  in args)
+  pretty     = ('pretty' in args)
+  encoding   = 'utf-8'
+  ratio      = 0.10
+  iterations = 1
+  for a in args
+    if a.lastIndexOf('ratio=', 0) is 0
+      ratio = (Number) a[6..]
+
+  # CONFIGURE PARAMS (INPUTS)
+  config = {debug,pretty,encoding,ratio,iterations}
+
+  # CONFIGURE CALLBACKS (OUTPUTS)
+  config.onComplete = (src) -> console.log src
+  config.onError    = (err) -> console.log "error: #{err}" ; process.exit(-1)
+
+  # EITHER TRY TO LOAD A SPECIFIC JS FILE
+  if nb_args > 2
+    config.file = file
+    readFile config
+
+  # OR ELSE IGNITE SELF-MUTATION
   else
-    clone
-      src: fs.readFileSync('/dev/stdin').toString()
-      debug: ('debug' in process.argv)
-      pretty: ('pretty' in process.argv)
-      ratio: ratio
-      onError: (err) ->
-        console.log "error: #{err}"
-        throw err
-      onComplete: (src) -> console.log src
+    config.src = fs.readFileSync('/dev/stdin').toString()
+    clone config
+
 
