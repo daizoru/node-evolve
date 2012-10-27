@@ -28,14 +28,13 @@
 #######################################
 class Robot
 
-  # the construct doesn't do much for now
-  constructor: (@x,@y,@z) ->
+  constructor: (@x=0, @y=0, @z=0) ->
 
   ###########################################################################
   # this is the main loop! it will hold the main algorithm and computations #
   # not eit can receive parameters (a.k.a. context)                         #
   ###########################################################################
-  update: (t) =>
+  update: (t=0) =>
 
     ############################################################################
     # let's define some vars we will use for the output (see end of function). #
@@ -91,11 +90,11 @@ class Robot
   ###########################################
   # immutable function which does something #
   ###########################################
-  move: (x, y, z) =>
-    @position.x += x
-    @position.y += y
-    @position.z += z
-    console.log "moved to #{@position}"
+  move: (x=0, y=0, z=0) =>
+    @x += x
+    @y += y
+    @z += z
+    console.log "moved to x: #{@x}, y: #{y}, z: #{z}"
 
 
 main ->
