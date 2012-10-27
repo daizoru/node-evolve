@@ -11,9 +11,9 @@ by introducing random changes in a program, constrained by a set of rules.
 It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
 and a set of rules to constrain mutations to specific patterns and parts of your code.
 
-That said, please don't use it mindlessly! there is absolutely no guarantees your program
+That said, please don't use it mindlessly! there is absolutely no guarantee that your program
 will still work after mutation, therefore your really should use a higher-level 
-genetic algorithm library on top of it.
+genetic algorithm library on top of it, to have a true selection and evolution mecanism.
 
 ## Examples
 
