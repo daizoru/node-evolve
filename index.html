@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>node-evolve by daizoru</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>node-evolve</h1>
+          <h2>A library for evolving programs - BETA</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/daizoru/node-evolve/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/daizoru/node-evolve/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/daizoru/node-evolve" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>node-evolve</h1>
+
+<p>A library for evolving programs - BETA</p>
+
+<h2>Summary</h2>
+
+<p>Evolve is a library designed to explore parameters, algorithms and solutions automatically,
+by introducing random changes in a program.</p>
+
+<p>It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
+constrained by a set of rules, to restrict mutations to specific changes and parts of your code.</p>
+
+<p>Since there is absolutely no guarantee that your program will still work, or even "evaluate"
+after mutation, you should use a higher-level library to manage individuals, population,
+fitness and selection.</p>
+
+<h2>Examples</h2>
+
+<p>Please browse the <a href="http://github.com/daizoru/node-evolve/examples/%22quickstart%22">examples</a> for a comprehensive tour of features and possible use cases.</p>
+
+<h3>Self-replicating "bacteria"</h3>
+
+<pre><code>$ examples/bacteria.coffee
+</code></pre>
+
+<p>Will run a minimalist demo program which can replicates itself (it just print a modified
+ version of its own source code to the standard output).
+To keep the demo simple, it is constrained to mutate only one thing - its own mutation rate:</p>
+
+<div class="highlight"><pre><span class="nv">evolve = </span><span class="nx">require</span><span class="p">(</span><span class="s">'evolve'</span><span class="p">)</span>
+<span class="nv">mutation_rate = </span><span class="p">.</span><span class="mi">001</span>
+<span class="nv">foo = </span><span class="p">.</span><span class="mi">20</span>
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+  <span class="nv">foo = </span><span class="nx">foo</span> <span class="o">*</span> <span class="mf">0.10</span>
+  <span class="nv">mutation_rate = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+  <span class="nv">mutation_rate = </span><span class="nx">mutation_rate</span> <span class="o">/</span> <span class="nx">foo</span>
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">readFile</span>
+  <span class="nv">ratio: </span><span class="nx">mutation_rate</span>
+  <span class="nv">file: </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="nv">debug: </span><span class="kc">false</span>
+  <span class="nv">onComplete: </span><span class="nf">(src) -&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">src</span>
+</pre></div>
+
+<h3>More examples</h3>
+
+<p>See the /xamples dir</p>
+
+<h2>WARNING</h2>
+
+<p>node-evolve is still in development and won't solve all problems for you:
+  no matter how powerful it might looks like, you still have to design your program - and your problem - carefully.</p>
+
+<h2>Installation</h2>
+
+<p>Since node-evolve is not released yet, you have to install it using:</p>
+
+<pre><code>$ npm install git://github.com/daizoru/node-evolve.git
+</code></pre>
+
+<h2>Features</h2>
+
+<h3>Radioactive batteries included</h3>
+
+<p>Various mutators are already available in node-evolve:
+random insert, replace, delete of AST nodes, numbers, strings..</p>
+
+<h3>EXPERIMENTAL - Support for multiples iterations</h3>
+
+<p>It can apply more than one layer of mutation:
+For instance, one iteration might copy AST nodes to a buffer,
+and another may paste the content to overwrite or insert data.</p>
+
+<p>Use this feature to create complex, combined mutations.</p>
+
+<h3>Constrained syntax and semantics</h3>
+
+<p>node-evolve will try hard to avoid useless or bad mutations - your code will already have a hard time surviving its first eval() anyway!</p>
+
+<p>It works thanks to AST constraints.
+These constraints prevent mutating this:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">/</span> <span class="nx">y</span><span class="p">;</span>
+</pre></div>
+
+<p>To this:</p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="mi">3</span> <span class="o">=</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">/</span><span class="p">;</span>
+</pre></div>
+
+<p>Because it would violate three constraints (assign to a number,
+lone '/' and '*' operators..)</p>
+
+<p>But for instance, this mutation would be allowed: </p>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">/</span> <span class="nx">x</span> <span class="o">/</span> <span class="nx">y</span> <span class="o">+</span> <span class="mi">4</span> <span class="p">;</span>
+</pre></div>
+
+<p>In the end, all these constraints make mutation more efficient,
+by avoiding running a "compilation" step or evaluation on obviously bad code. It saves time.</p>
+
+<h3>Customizable rules</h3>
+
+<p>You can input your own rules, if they can be applied to an AST node (or the root node of the whole tree).</p>
+
+<h3>Simple type checking</h3>
+
+<p>node-evolve check that incompatible references are not mixed.</p>
+
+<p>For instance, if you define this context:</p>
+
+<div class="highlight"><pre><span class="nv">context = </span><span class="o">-&gt;</span> <span class="p">[</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span> <span class="p">]</span>
+</pre></div>
+
+<p>then this mutation can't happen with node-evolve:</p>
+
+<div class="highlight"><pre><span class="nx">var</span> <span class="nv">x = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">;</span>
+</pre></div>
+
+<p>But this one can:</p>
+
+<div class="highlight"><pre><span class="nx">var</span> <span class="nv">x = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span><span class="p">);</span>
+</pre></div>
+
+<p>On the other hand, this one is prohibited:</p>
+
+<div class="highlight"><pre><span class="nb">Math</span><span class="p">.</span><span class="nv">PI = </span><span class="nx">x</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">x</span><span class="p">);</span>
+</pre></div>
+
+<p>Since variables and functions passed in context are read-only</p>
+
+<h3>List of supported mutations</h3>
+
+<h4>Numerical values</h4>
+
+<p>Numerical values are subject to mutation, like random multiplication or addition.</p>
+
+<h4>Binary operator substitution</h4>
+
+<p>Operator of binary operations may be substituted by any operator
+  of this list: + - * /</p>
+
+<h4>Binary operator switching</h4>
+
+<p>This mutation simply switch two terms of an operation,
+  eg. 10.0 / 5.0 becomes 5.0 / 10.0. </p>
+
+<h4>EXPERIMENTAL - String mutation, levenshtyle.</h4>
+
+<p>String mutation is supported, and done using atomic operators like add, delete, move and substitution. However it is still experimental, and doesn't offer
+  much control over which ASCII characters are allowed, forbidden,
+  constants strings, collections of strings.. you have to implement this
+  yourself for the moment (using Rules)</p>
+
+<h4>EXPERIMENTAL - Block copying, cutting &amp; pasting</h4>
+
+<p>This mutation copy or cut a node of the AST tree to another place.
+  It may replace a node or insert between two.</p>
+
+<h4>EXPERIMENTAL - Variable substitution</h4>
+
+<p>Any variable is subject to change and remplacement by another variable.</p>
+
+<h2>How-to</h2>
+
+<h3>Use it in command line</h3>
+
+<pre><code>$ evolve src [ratio=0.42] [debug]
+</code></pre>
+
+<p>Example :</p>
+
+<pre><code>$ evolve examples/evolvable.js ratio=0.10
+</code></pre>
+
+<div class="highlight"><pre><span class="nx">mutable</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">a</span> <span class="o">=</span> <span class="nx">x</span> <span class="o">*</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nx">b</span> <span class="o">=</span> <span class="nx">y</span> <span class="o">*</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="nx">z</span> <span class="o">=</span> <span class="s2">"hello"</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">c</span> <span class="o">=</span> <span class="mf">1.4881885522045195</span> <span class="o">*</span> <span class="nx">z</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+
+<h3>Using the API</h3>
+
+<h4>Defining a block of mutable code</h4>
+
+<div class="highlight"><pre><span class="nv">evolve = </span><span class="nx">require</span> <span class="s">'evolve'</span>
+
+<span class="k">class</span> <span class="nx">Foo</span>
+
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+
+  <span class="nv">foo: </span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">,</span><span class="nx">z</span><span class="p">)</span> <span class="o">=&gt;</span>
+
+    <span class="p">[</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># define a block of evolvable code, algorithm, neural network..</span>
+    <span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+
+      <span class="c1"># the evolved code can only mess with foo()'s variables</span>
+      <span class="c1"># if evolution goes wrong</span>
+      <span class="nv">a = </span><span class="nx">x</span> <span class="o">*</span> <span class="mi">1</span>
+      <span class="nv">b = </span><span class="nx">y</span> <span class="o">*</span> <span class="mi">1</span>
+      <span class="nv">c = </span><span class="nx">z</span> <span class="o">*</span> <span class="mi">1</span>
+
+      <span class="c1"># you can add an "hidden" level of memory</span>
+      <span class="nv">f = </span><span class="mi">5</span>
+      <span class="nv">g = </span><span class="mi">42</span> 
+
+      <span class="c1"># and maths!</span>
+      <span class="nv">b = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">g</span> <span class="o">*</span> <span class="nx">a</span><span class="p">)</span>
+      <span class="nv">c = </span><span class="nx">a</span> <span class="o">+</span> <span class="mi">3</span>
+
+    <span class="c1"># outside the block, you can call your stuff as usual</span>
+    <span class="nx">@bar</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span>
+
+</pre></div>
+
+<h4>Dynamic mutation (aka radioactive contamination mode)</h4>
+
+<div class="highlight"><pre><span class="p">{</span><span class="nx">mutate</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'evolve'</span>
+
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">mutate</span> 
+  <span class="nv">obj: </span><span class="nx">Foo</span><span class="p">.</span><span class="nx">prototype</span>
+  <span class="nv">func: </span><span class="s">'foo'</span>
+  <span class="nv">onComplete: </span><span class="o">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"mutation of foo() completed."</span>
+
+    <span class="nv">f = </span><span class="k">new</span> <span class="nx">Foo</span><span class="p">()</span>
+    <span class="nx">f</span><span class="p">.</span><span class="nx">foo</span><span class="p">()</span>
+</pre></div>
+
+<h4>Load a source string</h4>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">evolve</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"evolve"</span><span class="p">);</span>
+
+<span class="kd">var</span> <span class="nx">old_src</span> <span class="o">=</span> <span class="s2">"x1 = 0; x2 = 42; f1 = function() { return x2 * 10; }; x1 = f1();"</span><span class="p">;</span>
+
+<span class="c1">// clone a source, with some "dna" copy errors</span>
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">clone</span><span class="p">({</span>
+
+  <span class="c1">// input source code (string)</span>
+  <span class="s2">"src"</span> <span class="o">:</span> <span class="nx">old_src</span><span class="p">,</span>
+
+  <span class="s2">"tentatives"</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+
+  <span class="c1">// on complete always return a source; In case of failure, the original is returned</span>
+  <span class="s2">"onComplete"</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"finished: "</span> <span class="o">+</span> <span class="nx">src</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">});</span>
+
+</pre></div>
+
+<h4>Load a file</h4>
+
+<div class="highlight"><pre>
+<span class="c1">// read a file, with some "dna" copy errors</span>
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">readFile</span><span class="p">({</span>
+    <span class="s2">"file"</span> <span class="o">:</span> <span class="s2">"examples/evolvable.js"</span><span class="p">,</span>
+    <span class="s2">"onComplete"</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">src</span><span class="p">);</span> <span class="p">}</span>
+<span class="p">});</span>
+
+</pre></div>
+
+<h4>Setup the context</h4>
+
+<p>Just pass a bunch of variables to be used in mutations</p>
+
+<div class="highlight"><pre>
+<span class="c1"># the function is important here</span>
+<span class="nv">context = </span><span class="o">-&gt;</span> <span class="p">[</span>
+  <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span>
+  <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span>
+  <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span>
+  <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span>
+<span class="p">]</span>
+
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">mutate</span> <span class="nv">context: </span><span class="nx">context</span><span class="p">,</span> <span class="p">.....</span>
+</pre></div>
+
+<h4>Customize the mutation rules</h4>
+
+<div class="highlight"><pre><span class="nv">rules =</span>
+
+  <span class="c1"># decorators are applied on each node, and expected to return either</span>
+  <span class="c1"># the current, new or modified node, or an undefined value (then it is ignored)</span>
+  <span class="nv">decorators:</span>
+    <span class="nv">multiply: </span><span class="nf">(t, value) -&gt;</span> 
+      <span class="k">if</span> <span class="nx">t</span> <span class="o">is</span> <span class="s">'num'</span> <span class="o">and</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="k">then</span> <span class="p">[</span><span class="nx">t</span><span class="p">,</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">value</span><span class="p">]</span>
+
+
+</pre></div>
+
+<h2>Change log</h2>
+
+<h3>0.0.0</h3>
+        </section>
+
+        <footer>
+          node-evolve is maintained by <a href="https://github.com/daizoru">daizoru</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
