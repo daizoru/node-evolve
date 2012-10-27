@@ -1,19 +1,19 @@
 node-evolve
 ===========
 
-A library for evolving Javascript functions - BETA
+A library for evolving programs - BETA
 
 ## Summary
 
 Evolve is a library designed to explore parameters, algorithms and solutions automatically,
-by introducing random changes in a program, constrained by a set of rules.
+by introducing random changes in a program.
 
 It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
-and a set of rules to constrain mutations to specific patterns and parts of your code.
+constrained by a set of rules, to restrict mutations to specific mutations and parts of your code.
 
-That said, please don't use it mindlessly! there is absolutely no guarantee that your program
-will still work after mutation, therefore your really should use a higher-level 
-genetic algorithm library on top of it, to have a true selection and evolution mecanism.
+Since there is absolutely no guarantee that your program will still work, or even "evaluate"
+after mutation, you should use a higher-level library to manage individuals, population,
+fitness and selection.
 
 ## Examples
 
