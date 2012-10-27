@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 evolve = require 'evolve'
-ratio = 0.001
+mutation_rate = 0.001
 foo = 0.25
 evolve.mutable ->
   foo = foo * 1.0
