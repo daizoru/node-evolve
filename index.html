@@ -49,11 +49,11 @@ fitness and selection.</p>
 
 <h2>Examples</h2>
 
-<p>Please browse the <a href="http://github.com/daizoru/node-evolve/examples/%22quickstart%22">examples</a> for a comprehensive tour of features and possible use cases.</p>
+<p>Please browse the <a href="http://github.com/daizoru/node-evolve/examples/" title="examples">examples</a> for a comprehensive tour of features and possible use cases.</p>
 
 <h3>Self-replicating "bacteria"</h3>
 
-<pre><code>$ examples/bacteria.coffee
+<pre><code>$ coffee examples/medium/bacteria.coffee
 </code></pre>
 
 <p>Will run a minimalist demo program which can replicates itself (it just print a modified
@@ -75,10 +75,6 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">src</span>
 </pre></div>
 
-<h3>More examples</h3>
-
-<p>See the /xamples dir</p>
-
 <h2>WARNING</h2>
 
 <p>node-evolve is still in development and won't solve all problems for you:
@@ -93,18 +89,10 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 
 <h2>Features</h2>
 
-<h3>Radioactive batteries included</h3>
+<h3>Built-in mutation rules</h3>
 
-<p>Various mutators are already available in node-evolve:
+<p>Various mutation are already available in node-evolve:
 random insert, replace, delete of AST nodes, numbers, strings..</p>
-
-<h3>EXPERIMENTAL - Support for multiples iterations</h3>
-
-<p>It can apply more than one layer of mutation:
-For instance, one iteration might copy AST nodes to a buffer,
-and another may paste the content to overwrite or insert data.</p>
-
-<p>Use this feature to create complex, combined mutations.</p>
 
 <h3>Constrained syntax and semantics</h3>
 
@@ -194,6 +182,14 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 <p>Any variable is subject to change and remplacement by another variable.</p>
 
+<h3>EXPERIMENTAL - Support for multiples iterations</h3>
+
+<p>It can apply more than one layer of mutation:
+For instance, one iteration might copy AST nodes to a buffer,
+and another may paste the content to overwrite or insert data.</p>
+
+<p>Use this feature to create complex, combined mutations.</p>
+
 <h2>How-to</h2>
 
 <h3>Use it in command line</h3>
@@ -250,7 +246,7 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 </pre></div>
 
-<h4>Dynamic mutation (aka radioactive contamination mode)</h4>
+<h4>Dynamic mutation of the currently running program (CoffeeScript example)</h4>
 
 <div class="highlight"><pre><span class="p">{</span><span class="nx">mutate</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'evolve'</span>
 
@@ -264,7 +260,7 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
     <span class="nx">f</span><span class="p">.</span><span class="nx">foo</span><span class="p">()</span>
 </pre></div>
 
-<h4>Load a source string</h4>
+<h4>Static mutation of a source string (JavaScript Example)</h4>
 
 <div class="highlight"><pre><span class="kd">var</span> <span class="nx">evolve</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"evolve"</span><span class="p">);</span>
 
@@ -284,7 +280,9 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 </pre></div>
 
-<h4>Load a file</h4>
+<h4>Static mutation of a source file (JavaScript example)</h4>
+
+<p>The input file can be in .js or in .coffee</p>
 
 <div class="highlight"><pre>
 <span class="c1">// read a file, with some "dna" copy errors</span>
@@ -295,12 +293,13 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 </pre></div>
 
-<h4>Setup the context</h4>
+<h4>Customization of globals</h4>
 
-<p>Just pass a bunch of variables to be used in mutations</p>
+<p>Just pass a bunch of variables to be used in mutations.
+these variables must be returned by a function,
+for symbol name introspection to work</p>
 
 <div class="highlight"><pre>
-<span class="c1"># the function is important here</span>
 <span class="nv">context = </span><span class="o">-&gt;</span> <span class="p">[</span>
   <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span>
   <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span>
@@ -308,10 +307,13 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
   <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span>
 <span class="p">]</span>
 
+<span class="c1"># then call it</span>
 <span class="nx">evolve</span><span class="p">.</span><span class="nx">mutate</span> <span class="nv">context: </span><span class="nx">context</span><span class="p">,</span> <span class="p">.....</span>
 </pre></div>
 
 <h4>Customize the mutation rules</h4>
+
+<p>For the moment, please refer to the <a href="https://github.com/daizoru/node-evolve/blob/master/src/rules.coffee" title="sources">sources</a> to see how rules work</p>
 
 <div class="highlight"><pre><span class="nv">rules =</span>
 
