@@ -1,23 +1,53 @@
 node-evolve
 ===========
 
-A library for evolving Javascript functions - UNRELEASED
+A library for evolving Javascript functions - BETA
 
 ## Summary
 
-node-evolve is a library for mutating Javascript functions:
+Evolve is a library designed to explore parameters, algorithms and solutions automatically,
+by introducing random changes in a program, constrained by a set of rules.
 
-It works by walking over the AST tree and applying random mutations.
+It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
+and a set of rules to constrain mutations to specific patterns and parts of your code.
 
-So, yes: if you attach it to a higher-level genetic algorithm library
-(there are some on GitHub), you can use it for GP (genetic programming). 
-Actually, this is dynamic meta GP, since you could grow, say, 
-a program which dynamically mutate and replicate itself at runtime.
-How cool is that?
+That said, please don't use it mindlessly! there is absolutely no guarantees your program
+will still work after mutation, therefore your really should use a higher-level 
+genetic algorithm library on top of it.
 
-Outside military and partying purposes, you can use it to find better parameters, or even new algorithms, thanks to its complex mutation features.
+## Examples
 
-Don't use it mindlessly! After all, it is designed to introduce errors in your code..
+Please see the /examples dir for cool examples. 
+
+For instance:
+
+### Replicator
+
+    $ examples/bacteria.coffee
+
+ Will run a minimalist demo program which can replicates itself (it just print a modified
+ version of its own source code to the standard output).
+To keep the demo simple, it is constrained to mutate only one thing - its own mutation rate:
+
+```CoffeeScript
+evolve = require('evolve')
+mutation_rate = .001
+foo = .20
+evolve.mutable ->
+  foo = foo * 0.10
+  mutation_rate = Math.cos(0.001) + Math.sin(0.5)
+  mutation_rate = mutation_rate / foo
+evolve.readFile
+  ratio: mutation_rate
+  file: process.argv[1]
+  debug: false
+  onComplete: (src) ->
+    console.log src
+```
+
+### More examples
+
+See the /xamples dir
 
 ## WARNING
 
@@ -276,32 +306,6 @@ rules =
 
 
 ```
-
-## Examples
-
-### Replicator program
-
-This CoffeeScript program replicates itself, with some mutations:
-
-```CoffeeScript
-evolve = require('evolve')
-mutation_rate = .001
-foo = .20
-evolve.mutable ->
-  foo = foo * 0.10
-  mutation_rate = Math.cos(0.001) + Math.sin(0.5)
-  mutation_rate = mutation_rate / foo
-evolve.readFile
-  ratio: mutation_rate
-  file: process.argv[1]
-  debug: false
-  onComplete: (src) ->
-    console.log src
-``
-
-### More examples
-
-See /examples
 
 ## Change log
 
