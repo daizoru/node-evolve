@@ -2,13 +2,11 @@
   "name": "evolve",
   "description": "Programmatically evolve source code",
   "version": "0.0.0",
-  "author": "Julian Bilcke <julian.bilcke@daizoru.com>",
-  "contributors": [ 
-    {
-      "name": "Julian Bilcke",
-      "email": "julian.bilcke@daizoru.com"
-    } 
-  ],
+  "author": {
+      "name" : "Julian Bilcke",
+      "email" : "julian.bilcke@daizoru.com",
+      "url" : "http://daizoru.github.com/node-evolve"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/daizoru/node-evolve.git"
