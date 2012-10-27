@@ -9,10 +9,10 @@
 #########################################################################
 # We will show in this quickstart how to evolve a simple, wont-do-many- #
 # things robot. Feel free to fork and hack it!                          #
-# I choose the fancy "robot" word not (just) not to make it cooler,     #
-# but also to highlight the fact you could effectively use node-evolve  #
-# to grow complex, dynamic programs, that could reproduce and evolve    #
-# to become more advanced after many generations.                       #
+# I choose the fancy "robot" word not (just) to make it cooler,but also #
+# to highlight the fact you could effectively use node-evolve to grow   #
+# complex, dynamic programs, that could reproduce and evolve to become  #
+# more advanced after many generations.                                 #
 #########################################################################
 
 
@@ -58,7 +58,7 @@ class Robot
 
       ###########################################################################
       # what can you do in a mutable code? well, actually.. it's just code.     #
-      # You could call node-java, node-ffi, generate stuff.. Anything you want  #
+      # You could call node-java, node-ffi, generate stuff.. Anything you can   #
       # describe with code (eg. templating, code generation, control of a sub-  #
       # -library..) and make evolve! so just don't forget it will mutate badly. #
       # So start with a well-defined algorithm to "bootstrap" the evolutionary  #
@@ -94,7 +94,7 @@ class Robot
     @x += x
     @y += y
     @z += z
-    console.log "moved to x: #{@x}, y: #{y}, z: #{z}"
+    console.log "moved to x: #{@x}, y: #{@y}, z: #{@z}"
 
 
 main ->

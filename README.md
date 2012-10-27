@@ -17,11 +17,9 @@ fitness and selection.
 
 ## Examples
 
-Please see the /examples dir for cool examples. 
+Please browse the [examples](http://github.com/daizoru/node-evolve/examples/"quickstart") for a comprehensive tour of features and possible use cases.
 
-For instance:
-
-### Replicator
+### Self-replicating "bacteria"
 
     $ examples/bacteria.coffee
 
