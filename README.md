@@ -17,11 +17,11 @@ fitness and selection.
 
 ## Examples
 
-Please browse the [examples](http://github.com/daizoru/node-evolve/examples/"quickstart") for a comprehensive tour of features and possible use cases.
+Please browse the [examples](http://github.com/daizoru/node-evolve/examples/ "examples") for a comprehensive tour of features and possible use cases.
 
 ### Self-replicating "bacteria"
 
-    $ examples/bacteria.coffee
+    $ coffee examples/medium/bacteria.coffee
 
  Will run a minimalist demo program which can replicates itself (it just print a modified
  version of its own source code to the standard output).
@@ -43,10 +43,6 @@ evolve.readFile
     console.log src
 ```
 
-### More examples
-
-See the /xamples dir
-
 ## WARNING
 
   node-evolve is still in development and won't solve all problems for you:
@@ -60,18 +56,10 @@ See the /xamples dir
 
 ## Features 
 
-### Radioactive batteries included
+### Built-in mutation rules
 
-Various mutators are already available in node-evolve:
+Various mutation are already available in node-evolve:
 random insert, replace, delete of AST nodes, numbers, strings..
-
-### EXPERIMENTAL - Support for multiples iterations
- 
-It can apply more than one layer of mutation:
-For instance, one iteration might copy AST nodes to a buffer,
-and another may paste the content to overwrite or insert data.
-
-Use this feature to create complex, combined mutations.
 
 ### Constrained syntax and semantics
 
@@ -169,6 +157,14 @@ Since variables and functions passed in context are read-only
 
   Any variable is subject to change and remplacement by another variable.
 
+### EXPERIMENTAL - Support for multiples iterations
+ 
+It can apply more than one layer of mutation:
+For instance, one iteration might copy AST nodes to a buffer,
+and another may paste the content to overwrite or insert data.
+
+Use this feature to create complex, combined mutations.
+
 ## How-to
 
 ### Use it in command line
@@ -225,7 +221,7 @@ class Foo
 
 ```
 
-#### Dynamic mutation (aka radioactive contamination mode)
+#### Dynamic mutation of the currently running program (CoffeeScript example)
 
 ```CoffeeScript
 {mutate} = require 'evolve'
@@ -240,7 +236,7 @@ evolve.mutate
     f.foo()
 ```
 
-#### Load a source string
+#### Static mutation of a source string (JavaScript Example)
 
 ```JavaScript
 var evolve = require("evolve");
@@ -261,7 +257,9 @@ evolve.clone({
 
 ```
 
-#### Load a file
+#### Static mutation of a source file (JavaScript example)
+ 
+ The input file can be in .js or in .coffee
 
 ```JavaScript
   
@@ -273,14 +271,14 @@ evolve.readFile({
 
 ```
 
-#### Setup the context
+#### Customization of globals
 
-
-Just pass a bunch of variables to be used in mutations
+Just pass a bunch of variables to be used in mutations.
+these variables must be returned by a function,
+for symbol name introspection to work
 
 ```CoffeeScript
 
-# the function is important here
 context = -> [
   Math.cos
   Math.sin
@@ -288,10 +286,13 @@ context = -> [
   Math.PI
 ]
 
+# then call it
 evolve.mutate context: context, .....
 ```
 
 #### Customize the mutation rules
+
+For the moment, please refer to the [sources](https://github.com/daizoru/node-evolve/blob/master/src/rules.coffee "sources") to see how rules work
 
 ```CoffeeScript
 rules =

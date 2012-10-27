@@ -354,8 +354,8 @@ exports.cli = main = ->
   args       = process.argv
   nb_args    = args.length
   file       = args[2]
-  debug      = ('debug'  in args)
-  pretty     = ('pretty' in args)
+  debug      = 'debug'  in args
+  pretty     = 'pretty' in args
   encoding   = 'utf-8'
   ratio      = 0.10
   iterations = 1
