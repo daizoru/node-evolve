@@ -32,7 +32,7 @@ class Robot
 
   ###########################################################################
   # this is the main loop! it will hold the main algorithm and computations #
-  # not eit can receive parameters (a.k.a. context)                         #
+  # note: of course it can receive parameters (a.k.a. context)              #
   ###########################################################################
   update: (t=0) =>
 
@@ -70,12 +70,12 @@ class Robot
       # since this is a quickstart tutorial and not a real program, let's just   #
       # not think too much about what it does and just apply random maths stuff. #
       ############################################################################
-      d = x * 1.0
+      d = x * 1.0 
       e = y * 1.0
       f = z * 1.0
-      a = d + e
-      b = e + f
-      c = f + d
+      a = d + e + (t * 0.1)
+      b = e + f + (t * 0.1)
+      c = f + d + (t * 0.1)
 
     #######################################################################
     # end of the mutable block! we go back to the classic immutable and   #
