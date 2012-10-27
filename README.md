@@ -9,7 +9,7 @@ Evolve is a library designed to explore parameters, algorithms and solutions aut
 by introducing random changes in a program.
 
 It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
-constrained by a set of rules, to restrict mutations to specific mutations and parts of your code.
+constrained by a set of rules, to restrict mutations to specific changes and parts of your code.
 
 Since there is absolutely no guarantee that your program will still work, or even "evaluate"
 after mutation, you should use a higher-level library to manage individuals, population,

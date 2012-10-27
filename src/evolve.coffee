@@ -296,9 +296,9 @@ exports.clone = clone = (opts) ->
 ###############################################
 # LIVE MUTATION AND REPLACEMENT OF A FUNCTION #
 ###############################################
-exports.mutate = mutate = (options) ->
+exports.mutate = mutate = (obj, func, options={}) ->
   clone 
-    src       : options.obj[options.func].toString()
+    src       : obj[func].toString()
     isCoffee  : options.isCoffee   ? no
     debug     : options.debug      ? no
     ratio     : options.ratio      ? 0.01
@@ -307,7 +307,7 @@ exports.mutate = mutate = (options) ->
       newFunction = eval new_src # interpret the code to create the func
       if options.debug
         console.log "replaced function with #{newFunction}"
-      options.obj[options.func] = newFunction
+      obj[func] = newFunction
       options.onComplete()
 
 #############################################################
