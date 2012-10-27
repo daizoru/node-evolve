@@ -96,7 +96,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 
 <h3>Built-in mutation rules</h3>
 
-<p>Various mutation are already available in node-evolve:
+<p>Various mutations are already available in node-evolve:
 random insert, replace, delete of AST nodes, numbers, strings..</p>
 
 <h3>Constrained syntax and semantics</h3>
@@ -114,7 +114,7 @@ These constraints prevent mutating this:</p>
 <div class="highlight"><pre><span class="kd">var</span> <span class="mi">3</span> <span class="o">=</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="nx">y</span> <span class="o">/</span><span class="p">;</span>
 </pre></div>
 
-<p>Because it would violate three constraints (assign to a number,
+<p>Because it would violates three constraints (assign to a number,
 lone '/' and '*' operators..)</p>
 
 <p>But for instance, this mutation would be allowed: </p>
@@ -187,7 +187,7 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 
 <p>Any variable is subject to change and remplacement by another variable.</p>
 
-<h3>EXPERIMENTAL - Support for multiples iterations</h3>
+<h4>EXPERIMENTAL - Support for multiples iterations</h4>
 
 <p>It can apply more than one layer of mutation:
 For instance, one iteration might copy AST nodes to a buffer,
@@ -204,7 +204,7 @@ and another may paste the content to overwrite or insert data.</p>
 
 <p>Example :</p>
 
-<pre><code>$ evolve examples/evolvable.js ratio=0.10
+<pre><code>$ evolve examples/basic/with_mutable.js ratio=0.10
 </code></pre>
 
 <div class="highlight"><pre><span class="nx">mutable</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
