@@ -46,13 +46,18 @@ evolve.readFile
 ## WARNING
 
   node-evolve is still in development and won't solve all problems for you:
-  no matter how powerful it might looks like, you still have to design your program - and your problem - carefully.
+  no matter how powerful it might looks like, you still have to design your program - and model your problem - carefully.
 
 ## Installation
 
-  Since node-evolve is not released yet, you have to install it using:
+  To install it as a dependency of your program, just type:
 
-    $ npm install git://github.com/daizoru/node-evolve.git
+    $ npm install evolve
+
+  To install it globally, and benefit from the *evolve* commandline script, do:
+
+    $ npm install -g evolve
+
 
 ## Features 
 
