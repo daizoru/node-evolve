@@ -63,7 +63,7 @@ evolve.readFile
 
 ### Built-in mutation rules
 
-Various mutation are already available in node-evolve:
+Various mutations are already available in node-evolve:
 random insert, replace, delete of AST nodes, numbers, strings..
 
 ### Constrained syntax and semantics
@@ -83,7 +83,7 @@ To this:
 var 3 = * 4 + 2 + y /;
 ```
 
-Because it would violate three constraints (assign to a number,
+Because it would violates three constraints (assign to a number,
 lone '/' and '*' operators..)
 
 But for instance, this mutation would be allowed: 
@@ -162,7 +162,7 @@ Since variables and functions passed in context are read-only
 
   Any variable is subject to change and remplacement by another variable.
 
-### EXPERIMENTAL - Support for multiples iterations
+#### EXPERIMENTAL - Support for multiples iterations
  
 It can apply more than one layer of mutation:
 For instance, one iteration might copy AST nodes to a buffer,
@@ -178,7 +178,7 @@ Use this feature to create complex, combined mutations.
 
 Example :
 
-    $ evolve examples/evolvable.js ratio=0.10
+    $ evolve examples/basic/with_mutable.js ratio=0.10
 
 ```JavaScript
 mutable(function() {

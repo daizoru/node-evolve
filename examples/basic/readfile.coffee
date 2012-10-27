@@ -2,6 +2,6 @@
 evolve = require "evolve"
 
 evolve.readFile
-  file: "examples/evolvable_big.js"
+  file: "examples/basic/without_mutable.js"
   onComplete: (src) ->
     console.log "two: " + src
