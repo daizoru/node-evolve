@@ -36,6 +36,8 @@ exports.clone = clone = (opts) ->
     isCoffee  : no
 
     # global context - user-provided
+    # I'm fraid I'll have to transform to the
+    # context: "abs: (x) -> Math.abs(x)" form, in order to read the params
     context: -> [
       Math.abs    # the absolute value of a
       Math.acos   # arc cosine of a
@@ -142,8 +144,18 @@ exports.clone = clone = (opts) ->
     
   try
     work.old_ast = jsp.parse work.old_src, {}
-  catch e
-    console.log e.message
+  catch e1
+    # dirty, dirty hack for uglify-js, which cannot parse code with a lambda as root:
+    if e1.message is 'Unexpected token: punc (()'
+      try
+        work.old_ast = jsp.parse "var ROOT = #{work.old_src};", {}
+        work.old_ast[1][0] = work.old_ast[1][0][1][0][1]
+      catch e2
+        console.log e2.message
+        console.log "function wrapping failed: #{e1.message}"
+        return
+    else
+      console.log "unsupported parsing error: #{e1.message}"
 
   ###################
   # MUTATE A BRANCH #
