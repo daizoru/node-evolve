@@ -316,7 +316,9 @@ exports.mutate = mutate = (obj, func, options={}) ->
     ratio     : options.ratio      ? 0.01
     iterations: options.iterations ? 2
     onComplete: (new_src) ->
-      newFunction = eval new_src # interpret the code to create the func
+      if options.debug
+        console.log "obj[func] = #{new_src};"
+      newFunction = eval "obj[func] = #{new_src};" # interpret the code to create the func
       if options.debug
         console.log "replaced function with #{newFunction}"
       obj[func] = newFunction

@@ -39,12 +39,12 @@ class Robot
     ############################################################################
     # let's define some vars we will use for the output (see end of function). #
     ############################################################################
-    [a,b,c] = [0,0,0]
+    [a,b,c] = [1.0, 1.0, 1.0]
 
     ######################################################################
     # but also local "memory" the algorithm is free to use for mutation. #
     ######################################################################
-    [d,e,f] = [0,0,0]
+    [d,e,f] = [1.0, 1.0, 1.0]
 
  
 
@@ -53,8 +53,7 @@ class Robot
     # by defining a "mutable" block, you can actually define   #
     # which part of your code is allowed to mutate actively.   #
     ############################################################
-
-    mutable ->
+    mutable =>
 
       ###########################################################################
       # what can you do in a mutable code? well, actually.. it's just code.     #
@@ -70,12 +69,12 @@ class Robot
       # since this is a quickstart tutorial and not a real program, let's just   #
       # not think too much about what it does and just apply random maths stuff. #
       ############################################################################
-      d = x * 1.0 
-      e = y * 1.0
-      f = z * 1.0
-      a = d + e + (t * 0.1)
-      b = e + f + (t * 0.1)
-      c = f + d + (t * 0.1)
+      d = @x * 1.0 
+      e = @y * 1.0
+      f = @z * 1.0
+      a = d + e + (t * 0.01)
+      b = e + f + (t * 0.01)
+      c = f + d + (t * 0.01)
 
     #######################################################################
     # end of the mutable block! we go back to the classic immutable and   #
@@ -91,17 +90,28 @@ class Robot
   # immutable function which does something #
   ###########################################
   move: (x=0, y=0, z=0) =>
+
+    ######################################################################
+    # add a constraint on our individual: to only spit out valid numbers #
+    ######################################################################
+    invalid = (x) -> ((Math.abs(x) is Infinity) or isNaN(x))
+    if invalid(x) or invalid(y) or invalid(z)
+      throw "output was not a number"
+
+    #################################
+    # do something with the outputs #
+    #################################
     @x += x
     @y += y
     @z += z
     console.log "moved to x: #{@x}, y: #{@y}, z: #{@z}"
 
 
-main ->
+main = ->
   ##################################################################
   # now we run in-process mutation, by calling the mutate function #
   ##################################################################
-  mutate Robot.prototype, 'compute',
+  mutate Robot.prototype, 'update',
 
 
     ################################################################################
@@ -134,8 +144,10 @@ main ->
       for i in [0..10]
         try
           robot.update i
+        # catch error and die if there is an exception. exceptions are NOT tolerated 
+        # because this would affect external libraries, memory, and may be cause fires
         catch e
-          console.log "crashed.. may I say: as expected from a random mutation? #{e}"
-
+          console.log "individual died: #{e}"
+          process.exit -1
 main()
 
