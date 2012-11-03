@@ -244,7 +244,7 @@ exports.clone = clone = (opts) ->
     search = (node) ->
       if isArray node
         if node[0] is 'call'
-          if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
+          if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable','dot,name,evolve,mutablock','name,mutablock']
             found = yes
             node[2][0][3] = mutateBranch copy node[2][0][3]
         else
