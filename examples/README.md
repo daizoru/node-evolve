@@ -14,7 +14,8 @@ These show usage of the [basic functions](https://github.com/daizoru/node-evolve
 
 ## Medium examples
 
-These show how a simple evolve-based program looks like. Eg see the [bacteria](https://github.com/daizoru/node-evolve/tree/master/examples/medium/bacteria.coffee "bacteria")
+These show how a simple evolve-based program looks like. 
+Eg see the [bacteria](https://github.com/daizoru/node-evolve/tree/master/examples/medium/bacteria/bacteria.coffee "bacteria") example.
 
 ## Advanced examples
 
