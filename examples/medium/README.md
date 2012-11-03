@@ -10,5 +10,5 @@ A demo of a self-replicating program.
 
 Like bacteria, except it runs in a node-cluster.
 
-This is a must-try if you are looking for live node-evolve action!
+This is a [must-try](https://github.com/daizoru/node-evolve/tree/master/examples/medium/petri/README.md "must-try") if you are looking for live node-evolve action!
 

@@ -14,7 +14,7 @@ timmy     = require "timmy"
 NB_CORES = 8
 MAX_EGGS = 200
 DECIMATION = 0.10 # used this variable to control mutation rate in real time
-SAMPLING = 0.20 # sampling for debug logs
+SAMPLING = 0.05 # sampling for debug logs
 DELAY = 10.ms
 TMP_DIR = "box/"
 ################################
