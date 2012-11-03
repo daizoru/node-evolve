@@ -63,7 +63,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 <div class="highlight"><pre><span class="nv">evolve = </span><span class="nx">require</span><span class="p">(</span><span class="s">'evolve'</span><span class="p">)</span>
 <span class="nv">mutation_rate = </span><span class="mf">0.001</span>
 <span class="nv">foo = </span><span class="p">.</span><span class="mi">20</span>
-<span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+<span class="nx">evolve</span><span class="p">.</span><span class="nx">mutablock</span> <span class="o">-&gt;</span>
   <span class="nv">foo = </span><span class="nx">foo</span> <span class="o">*</span> <span class="mf">0.10</span>
   <span class="nv">mutation_rate = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sin</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
   <span class="nv">mutation_rate = </span><span class="nx">mutation_rate</span> <span class="o">/</span> <span class="nx">foo</span>
@@ -230,7 +230,7 @@ and another may paste the content to overwrite or insert data.</p>
     <span class="p">[</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># define a block of evolvable code, algorithm, neural network..</span>
-    <span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+    <span class="nx">evolve</span><span class="p">.</span><span class="nx">mutablock</span> <span class="o">-&gt;</span>
 
       <span class="c1"># the evolved code can only mess with foo()'s variables</span>
       <span class="c1"># if evolution goes wrong</span>
@@ -245,6 +245,42 @@ and another may paste the content to overwrite or insert data.</p>
       <span class="c1"># and maths!</span>
       <span class="nv">b = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">g</span> <span class="o">*</span> <span class="nx">a</span><span class="p">)</span>
       <span class="nv">c = </span><span class="nx">a</span> <span class="o">+</span> <span class="mi">3</span>
+
+    <span class="c1"># outside the block, you can call your stuff as usual</span>
+    <span class="nx">@bar</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span>
+
+</pre></div>
+
+<h4>Defining a mutable function</h4>
+
+<div class="highlight"><pre><span class="nv">evolve = </span><span class="nx">require</span> <span class="s">'evolve'</span>
+
+<span class="k">class</span> <span class="nx">Foo</span>
+
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+
+  <span class="nv">foo: </span><span class="p">(</span><span class="nx">x</span><span class="p">,</span><span class="nx">y</span><span class="p">,</span><span class="nx">z</span><span class="p">)</span> <span class="o">=&gt;</span>
+
+    <span class="p">[</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># define a block of evolvable code, algorithm, neural network..</span>
+    <span class="nv">func = </span><span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+
+      <span class="c1"># the evolved code can only mess with foo()'s variables</span>
+      <span class="c1"># if evolution goes wrong</span>
+      <span class="nv">a = </span><span class="nx">x</span> <span class="o">*</span> <span class="mi">1</span>
+      <span class="nv">b = </span><span class="nx">y</span> <span class="o">*</span> <span class="mi">1</span>
+      <span class="nv">c = </span><span class="nx">z</span> <span class="o">*</span> <span class="mi">1</span>
+
+      <span class="c1"># you can add an "hidden" level of memory</span>
+      <span class="nv">f = </span><span class="mi">5</span>
+      <span class="nv">g = </span><span class="mi">42</span> 
+
+      <span class="c1"># and maths!</span>
+      <span class="nv">b = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">cos</span><span class="p">(</span><span class="nx">g</span> <span class="o">*</span> <span class="nx">a</span><span class="p">)</span>
+      <span class="nv">c = </span><span class="nx">a</span> <span class="o">+</span> <span class="mi">3</span>
+
+    <span class="nx">func</span><span class="p">()</span>
 
     <span class="c1"># outside the block, you can call your stuff as usual</span>
     <span class="nx">@bar</span> <span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">c</span>
