@@ -357,7 +357,8 @@ exports.readFile = readFile = (opts) ->
 
 
 # simple marker
-exports.mutable = mutable = (f) -> f
+exports.mutablock = mutable = (f) -> f()
+exports.mutable   = mutable = (f) -> f
 
 ########################
 # COMMAND-LINE PROGRAM # 

@@ -31,7 +31,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 evolve = require('evolve')
 mutation_rate = 0.001
 foo = .20
-evolve.mutable ->
+evolve.mutablock ->
   foo = foo * 0.10
   mutation_rate = Math.cos(0.001) + Math.sin(0.5)
   mutation_rate = mutation_rate / foo
@@ -205,7 +205,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    evolve.mutable ->
+    evolve.mutablock ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong
@@ -220,6 +220,43 @@ class Foo
       # and maths!
       b = Math.cos(f) + Math.cos(g * a)
       c = a + 3
+
+    # outside the block, you can call your stuff as usual
+    @bar a, b, c
+
+```
+
+#### Defining a mutable function
+
+```CoffeeScript
+evolve = require 'evolve'
+
+class Foo
+
+  constructor: ->
+  
+  foo: (x,y,z) =>
+
+    [a,b,c] = [0,0,0]
+
+    # define a block of evolvable code, algorithm, neural network..
+    func = evolve.mutable ->
+
+      # the evolved code can only mess with foo()'s variables
+      # if evolution goes wrong
+      a = x * 1
+      b = y * 1
+      c = z * 1
+
+      # you can add an "hidden" level of memory
+      f = 5
+      g = 42 
+
+      # and maths!
+      b = Math.cos(f) + Math.cos(g * a)
+      c = a + 3
+
+    func()
 
     # outside the block, you can call your stuff as usual
     @bar a, b, c
