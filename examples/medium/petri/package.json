@@ -1,0 +1,33 @@
+{
+  "name": "evolve-petri",
+  "description": "bio-inspired genetic programming",
+  "version": "0.0.0",
+  "author": {
+      "name" : "Julian Bilcke",
+      "email" : "julian.bilcke@daizoru.com",
+      "url" : "http://daizoru.github.com/node-evolve/examples/medium/petri/"
+  },
+  "keywords": [
+    "evolve",
+    "genetic",
+    "evolutionary",
+    "evolutionary design",
+    "genetic programming",
+    "genetic algorithm"
+  ],
+  "scripts"     : {
+    "run"       : "sh run.sh",
+    "build"     : "node_modules/coffee-script/bin/coffee --compile --output lib/ src/",
+    "watch"     : "node_modules/coffee-script/bin/coffee --watch --compile --output lib/ src/"
+  },
+  "bin" : "./petri",
+  "main" : "./petri",
+  "licence" : "GPL",
+  "dependencies" : {
+     "coffee-script"  : "1.4.0",
+     "evolve"         : "*",
+     "timmy"          : "*",
+     "ragtime"        : "*",
+     "deck"           : "0.0.4"
+   }
+}
