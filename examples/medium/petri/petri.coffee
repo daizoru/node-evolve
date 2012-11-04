@@ -7,16 +7,18 @@ fs        = require "fs"
 crypto    = require "crypto"
 deck      = require "deck"
 evolve    = require "evolve"
-{wait}    = require "ragtime"
+{wait,repeat}    = require "ragtime"
 timmy     = require "timmy"
  
- # machine constraints #########
-NB_CORES = 1#os.cpus().length ? 2
-DB_SIZE = 20 # this is a soft limit
-SAMPLING = 1#0.05 # sampling for debug logs
-DELAY = 2.sec
-TMP_DIR = "box/"
-################################
+ # machine constraints ##################
+NB_CORES = os.cpus().length
+DB_SIZE = 20 # soft db limit
+#########################################
+
+# debug options #########################
+DELAY = 20.ms   # delay between subprocesses launches
+SAMPLING = 0.05 # how often we should print logs
+#########################################
 
 # TODO
 # packets can be grouped when sent from worker to cluster
@@ -33,6 +35,9 @@ class Database
   constructor: (@max_size) ->
     @_ = {}
     @length = 0
+    @counter = 0
+
+    @batch = []
 
   load: (file) =>
     console.log "importing #{file}"
@@ -47,18 +52,50 @@ class Database
       id: id
       generation: generation
       hash: hash
+      stats: {}
 
   pick    :       => @_[deck.pick Object.keys @_]
   remove  : (g)   => delete @_[g.id]
-  record  : (g)   => @_[g.id] = g
+  record  : (g)   => @_[g.id] = g ; @counter++
   size    :       => Object.keys(@_).length
+  oldestGeneration: =>
+    oldest = 0
+    for k,v of @_
+      if v.generation > oldest
+        oldest = v.generation
+    oldest
 
-  # apply a soft limit by removing random genomes.
-  # older genomes have more "opportunities" of dying than younger ones
+  # The decimator should take params,
+  # to decimate in priority badly performing individual
+
+
   decimate: =>
-    p = 1.0 - (@max_size / @size())
-    for id, g of @_
-      @remove g if Math.random() < p
+    size = @size()
+    return if size < @max_size
+    to_remove = size - @max_size
+    #console.log "to remove: #{to_remove}"
+    keys = deck.shuffle Object.keys @_
+    for k in keys[0...to_remove]
+      #console.log "removing #{k}"
+      delete @_[k]
+
+  # pick up next individual in a round
+  next: =>
+    #console.log "batch: #{@batch}"
+    k = @batch.pop()
+    #console.log "next: #{k}"
+    if !k? and @size() > 0
+      #console.log "end of cycle. size: #{@size()}"
+      @decimate()
+      #console.log "new size: #{@size()}"
+      @batch = deck.shuffle Object.keys @_
+      #console.log "new batch: #{@batch}"
+      k = @batch.pop()
+      #console.log "new next: #{k}"
+
+    @_[k]
+
+
 
 MASTER = ->
 
@@ -69,37 +106,52 @@ MASTER = ->
   # helper function to send a genome to some worker
   sendGenome = (worker) ->
     #console.log "sendGenome()"
-    genome = db.pick()
-    if genome
+    genome = db.next()
+    if genome?
       #console.log "sending genome"
       worker.genome = genome
       worker.send JSON.stringify {genome}
     else
-      console.log "error, no genome to send; retrying later"
-      wait(1.sec) -> sendGenome worker
+      #console.log "error, no genome to send; retrying later"
+      wait(50.ms) -> sendGenome worker
 
   broadcast = (f) ->
     for id in cluster.workers
       f cluster.workers[id]
 
   runWorker = ->
-    db.decimate()
     worker = cluster.fork()
     worker.on 'message', (msg) ->
       msg = JSON.parse msg
       sendGenome worker       if 'hello'  of msg
       db.record msg.record    if 'record' of msg # no else, to support batch mode
       db.remove worker.genome if 'die'    of msg
+      #if 'die' of msg
+      #  console.log msg.die
 
   # reload workers if necessary
   cluster.on "exit", (worker, code, signal) ->
-    console.log "  db size: #{db.size()}"
     wait(DELAY) -> runWorker() 
 
   # run workers over CPU cores
   [0..NB_CORES].map (i) -> runWorker()
 
+  repeat 2.sec, ->
 
+    g = db.pick()
+    return unless g
+    console.log "random individual:"
+    console.log "  hash:     : #{g.hash}"
+    console.log "  generation: #{g.generation}"
+    console.log "  forking   : #{g.stats.forking_rate}"
+    console.log "  mutation  : #{g.stats.mutation_rate}"
+    console.log "  lifespan  : #{g.stats.lifespan_rate}\n"
+    console.log " general stats:"
+    console.log "  db size: #{db.size()}"
+    console.log "  counter: #{db.counter}"
+    console.log "  oldest : #{db.oldestGeneration()}\n"
+
+# a worker iteration
 WORKER = ->
   #console.log "WORKER STARTED"
   # worker-specific functions
@@ -128,21 +180,16 @@ WORKER = ->
 
       eval genome.src # run the evolvable kernel
 
+
       mutation_rate = Math.abs mutation_rate
       lifespan_rate = Math.abs lifespan_rate
       forking_rate  = Math.abs forking_rate
-
-      if Math.random() < SAMPLING
-        console.log "worker #{process.pid}:"
-        console.log "  hash:     : #{genome.hash}"
-        console.log "  generation: #{genome.generation}"
-        console.log "  forking   : #{forking_rate}"
-        console.log "  mutation  : #{mutation_rate}"
-        console.log "  lifespan  : #{lifespan_rate}\n"
       
       # eve is not killed until we fully bootstrapped the system
+      # maybe it's optional, since there will die after all,
+      # and we can achieve the same by stopping forking
       if genome.generation > 0 and Math.random() < lifespan_rate
-        outputs die: "end of life"
+        outputs die: "end of tree"
 
       if Math.random() < forking_rate 
         #console.log "cloning"
@@ -157,6 +204,7 @@ WORKER = ->
                 generation: genome.generation + 1
                 id: makeId()
                 hash: sha1 new_src
+                stats: { mutation_rate, lifespan_rate, forking_rate }
             process.exit 0
       else
         process.exit 0
