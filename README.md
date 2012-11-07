@@ -31,7 +31,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 evolve = require('evolve')
 mutation_rate = 0.001
 foo = .20
-evolve.mutablock ->
+evolve.mutable ->
   foo = foo * 0.10
   mutation_rate = Math.cos(0.001) + Math.sin(0.5)
   mutation_rate = mutation_rate / foo
@@ -205,7 +205,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    evolve.mutablock ->
+    evolve.mutable ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong
@@ -240,7 +240,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    func = evolve.mutable ->
+    func = evolve.mutable -> ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong
@@ -350,7 +350,20 @@ rules =
 
 ## Change log
 
+### 0.0.2
+
+  * revert back to just the 'mutable' keyword
+  * various bigfixes
+  * more examples
+  * still slow as hell - maybe use another parsing library?
+
+### 0.0.1
+
+  * ?
+
 ### 0.0.0
+
+  * initial commit
 
 ## License (BSD)
 

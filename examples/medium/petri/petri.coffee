@@ -11,8 +11,8 @@ evolve    = require "evolve"
 timmy     = require "timmy"
  
  # machine constraints ##################
-NB_CORES = os.cpus().length
-DB_SIZE = 20 # soft db limit
+NB_CORES = Math.round(os.cpus().length - 2) ? 1
+DB_SIZE = 200 # soft db limit
 #########################################
 
 # debug options #########################
@@ -143,9 +143,10 @@ MASTER = ->
     console.log "random individual:"
     console.log "  hash:     : #{g.hash}"
     console.log "  generation: #{g.generation}"
-    console.log "  forking   : #{g.stats.forking_rate}"
-    console.log "  mutation  : #{g.stats.mutation_rate}"
-    console.log "  lifespan  : #{g.stats.lifespan_rate}\n"
+    console.log "   parent stats:"
+    console.log "    forking   : #{g.stats.forking_rate}"
+    console.log "    mutation  : #{g.stats.mutation_rate}"
+    console.log "    lifespan  : #{g.stats.lifespan_rate}\n"
     console.log " general stats:"
     console.log "  db size: #{db.size()}"
     console.log "  counter: #{db.counter}"

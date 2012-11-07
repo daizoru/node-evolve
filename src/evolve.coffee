@@ -244,7 +244,7 @@ exports.clone = clone = (opts) ->
     search = (node) ->
       if isArray node
         if node[0] is 'call'
-          if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable','dot,name,evolve,mutablock','name,mutablock']
+          if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
             found = yes
             node[2][0][3] = mutateBranch copy node[2][0][3]
         else
@@ -357,8 +357,8 @@ exports.readFile = readFile = (opts) ->
 
 
 # simple marker
-exports.mutablock = mutable = (f) -> f()
-exports.mutable   = mutable = (f) -> f
+exports.mutable = mutable = (f) -> f()
+#exports.mutable   = mutable = (f) -> f
 
 ########################
 # COMMAND-LINE PROGRAM # 
