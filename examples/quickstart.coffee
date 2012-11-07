@@ -94,8 +94,12 @@ class Robot
     ######################################################################
     # add a constraint on our individual: to only spit out valid numbers #
     ######################################################################
-    invalid = (x) -> ((Math.abs(x) is Infinity) or isNaN(x))
-    if invalid(x) or invalid(y) or invalid(z)
+    unless (isFinite(x) and isFinite(y) and isFinite(z))
+     
+      ##################################################################################
+      # basic survival constraints are just exceptions to 'kill' the individual so bad #
+      # ones have statistically less chances of reproducing and spreading bugs.        #
+      ##################################################################################
       throw "output was not a number"
 
     #################################
