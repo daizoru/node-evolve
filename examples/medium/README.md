@@ -22,6 +22,6 @@ Should looks like something like this (for instance):
 
 myrules =
   mymutation: (t,x) ->
-    if t is 'num' and (0 < mutable -> 0.5 + 0.5)
-      t, mutable -> Math.random() + x]
+    if t is 'num' and mutable -> 0.5 + 0.5
+      [t, mutable -> Math.random() + x]
 ```
