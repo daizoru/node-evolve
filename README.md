@@ -8,8 +8,22 @@ Programmatically evolve source code *BETA*
 Evolve is a library designed to explore parameters, algorithms and solutions automatically,
 by introducing random changes in a program.
 
-It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
-constrained by a set of rules, to restrict mutations to specific changes and parts of your code.
+It works by mutating specific (or whole) parts of your code JavaScript ASTs, 
+identified using a magic function:
+
+```CoffeeScript
+mutable       value
+mutable ->    statements
+mutable -> -> function
+```
+
+Then a second function, "mutate()", will read your code (either statically, as a file, or dynamically, 
+in the running process), and apply some mutations on it.
+
+Theses mutations are probabilistic (you can adjust the mutation factor, and in the future, the mutation rules), 
+and may modify the AST structure, statements, assignements, function calls, values and operations.
+
+Node-evolve use a constraint system to elimite impossible mutation early.
 
 Since there is absolutely no guarantee that your program will still work, or even "evaluate"
 after mutation, you should use a higher-level library to manage individuals, population,
