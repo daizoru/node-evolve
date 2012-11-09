@@ -191,10 +191,18 @@ mutable(function() {
 
 ### Using the API
 
-#### Defining a block of mutable code
+#### Defining a mutable value
 
 ```CoffeeScript
-evolve = require 'evolve'
+{mutable} = require 'evolve'
+
+# x is now a mutable: it's definition may by readable and evolvable
+# using node-evolve parser
+x = mutable Math.round Math.sqrt Math.PI * Math.PI / 2
+```
+
+```CoffeeScript
+{mutable} = require 'evolve'
 
 class Foo
 
@@ -205,7 +213,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    evolve.mutable ->
+    mutable ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong

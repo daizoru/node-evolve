@@ -356,9 +356,8 @@ exports.readFile = readFile = (opts) ->
         options.onComplete new_src
 
 
-# simple marker
-exports.mutable = mutable = (f) -> f()
-#exports.mutable   = mutable = (f) -> f
+# magic wrapper
+exports.mutable = mutable = (f) -> if isFunction f then f() else f
 
 ########################
 # COMMAND-LINE PROGRAM # 
