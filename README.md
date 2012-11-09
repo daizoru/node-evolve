@@ -23,7 +23,8 @@ in the running process), and apply some mutations on it.
 Theses mutations are probabilistic (you can adjust the mutation factor, and in the future, the mutation rules), 
 and may modify the AST structure, statements, assignements, function calls, values and operations.
 
-Node-evolve use a constraint system to elimite impossible mutation early.
+Node-evolve use a constraint system for early detection of impossible mutations, so
+it should produce interesting results (?) most of the time.
 
 Since there is absolutely no guarantee that your program will still work, or even "evaluate"
 after mutation, you should use a higher-level library to manage individuals, population,
