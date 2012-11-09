@@ -40,8 +40,21 @@
 <p>Evolve is a library designed to explore parameters, algorithms and solutions automatically,
 by introducing random changes in a program.</p>
 
-<p>It works by mutating JavaScript ASTs, using random mutations over trees and nodes,
-constrained by a set of rules, to restrict mutations to specific changes and parts of your code.</p>
+<p>It works by mutating specific (or whole) parts of your code JavaScript ASTs, 
+identified using a magic function:</p>
+
+<div class="highlight"><pre><span class="nx">mutable</span>       <span class="nx">value</span>
+<span class="nx">mutable</span> <span class="o">-&gt;</span>    <span class="nx">statements</span>
+<span class="nx">mutable</span> <span class="o">-&gt;</span> <span class="o">-&gt;</span> <span class="nx">function</span>
+</pre></div>
+
+<p>Then a second function, "mutate()", will read your code (either statically, as a file, or dynamically, 
+in the running process), and apply some mutations on it.</p>
+
+<p>Theses mutations are probabilistic (you can adjust the mutation factor, and in the future, the mutation rules), 
+and may modify the AST structure, statements, assignements, function calls, values and operations.</p>
+
+<p>Node-evolve use a constraint system to elimite impossible mutation early.</p>
 
 <p>Since there is absolutely no guarantee that your program will still work, or even "evaluate"
 after mutation, you should use a higher-level library to manage individuals, population,
@@ -217,9 +230,16 @@ and another may paste the content to overwrite or insert data.</p>
 
 <h3>Using the API</h3>
 
-<h4>Defining a block of mutable code</h4>
+<h4>Defining a mutable value</h4>
 
-<div class="highlight"><pre><span class="nv">evolve = </span><span class="nx">require</span> <span class="s">'evolve'</span>
+<div class="highlight"><pre><span class="p">{</span><span class="nx">mutable</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'evolve'</span>
+
+<span class="c1"># x is now a mutable: it's definition may by readable and evolvable</span>
+<span class="c1"># using node-evolve parser</span>
+<span class="nv">x = </span><span class="nx">mutable</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+
+<div class="highlight"><pre><span class="p">{</span><span class="nx">mutable</span><span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s">'evolve'</span>
 
 <span class="k">class</span> <span class="nx">Foo</span>
 
@@ -230,7 +250,7 @@ and another may paste the content to overwrite or insert data.</p>
     <span class="p">[</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="c1"># define a block of evolvable code, algorithm, neural network..</span>
-    <span class="nx">evolve</span><span class="p">.</span><span class="nx">mutable</span> <span class="o">-&gt;</span>
+    <span class="nx">mutable</span> <span class="o">-&gt;</span>
 
       <span class="c1"># the evolved code can only mess with foo()'s variables</span>
       <span class="c1"># if evolution goes wrong</span>
