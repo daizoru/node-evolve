@@ -24,31 +24,36 @@ compute = ->
   #console.log "memory: #{inspect memory, no, 3, yes}"
 
   for n in memory
-
+    console.log "computing element"
     # add a new input
-    if P mutable 0.04
+    if P mutable 0.20
+      console.log "adding a new input"
       n.inputs.push mutable
         input: randomIndex() # TODO should not be *that* random
         weight: Math.random() * 0.01 + 1.0
 
-    # delete an input
-    if P mutable 0.001
-      n.splice randomIndex(), 1
-
     if n.inputs.length
 
+      if P mutable 0.40
+        console.log "deleting a random input"
+        n.inputs.splice Math.round(Math.random() * n.inputs.length), 1
+
       # update an input weight
-      if P mutable 0.01
+      if P mutable 0.30
+        console.log "updating an input weight"
         input = n.inputs[(n.inputs.length - 1) * Math.random()]
         input.weight = mutable input.weight * 1.0
 
       # compute local state using some inputs
-      if P mutable 0.01
+      if P mutable 0.95
+        console.log "computing local state"
         n.value = 0
-        for i in inputs
+        for i in n.inputs
           input_signal = memory[i.input].value
           n.value += mutable input_signal * i.weight
-        n.value = if inputs.length > 0 then n.value / inputs.length else n.value
+        if n.inputs.length > 0
+          n.value = n.value / n.inputs.length
+
     # done
   console.log "iteration #{++iterations} completed."
 
@@ -61,3 +66,6 @@ compute = ->
     wait(1000.ms) compute
 
 wait(1.sec) compute
+
+
+# todo add reproduction
