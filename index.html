@@ -106,7 +106,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 <pre><code>$ npm install -g evolve
 </code></pre>
 
-<h2>Features</h2>
+<h2>Introduction / Overview / features</h2>
 
 <h3>Built-in mutation rules</h3>
 
@@ -168,6 +168,17 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 </pre></div>
 
 <p>Since variables and functions passed in context are read-only</p>
+
+<h2>Documentation</h2>
+
+<h3>Best practices</h3>
+
+<p>You can combine markers (annotation functions) with mutation of genetic rules,
+  to mutate the mutation process itself. </p>
+
+<p>It's very easy and you should really do that if you want to converge to a result faster.</p>
+
+<p>See an example here <a href="https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations" title="here">here</a>.</p>
 
 <h3>List of supported mutations</h3>
 
