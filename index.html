@@ -174,11 +174,21 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 <h3>Best practices</h3>
 
 <p>You can combine markers (annotation functions) with mutation of genetic rules,
-  to mutate the mutation process itself. </p>
+  to mutate the mutation process itself. The idea is, if you wrap your functions f and g
+  with "do-nothing" functions like a and b:</p>
 
-<p>It's very easy and you should really do that if you want to converge to a result faster.</p>
+<div class="highlight"><pre>  <span class="nx">a</span><span class="p">(</span><span class="nx">f</span><span class="p">(</span><span class="nx">b</span><span class="p">(</span><span class="nx">g</span><span class="p">(</span><span class="mi">42</span><span class="p">))))</span>
+</pre></div>
 
-<p>See an example here <a href="https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations" title="here">here</a>.</p>
+<p>The mutation may use this information (that there is a a and a b) to
+  change mutations rules accordingly.
+  Actually, a and b may do things - it's just that it is also convenient
+  if they does nothing, to simply wrap and "mark" parts of the code.</p>
+
+<p>With this technique, evolution can optimize it's own fork/mutation process,
+  and converge faster to a result.</p>
+
+<p>See a work-in-progress example <a href="https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations" title="here">here</a>.</p>
 
 <h3>List of supported mutations</h3>
 
