@@ -74,7 +74,7 @@ evolve.readFile
     $ npm install -g evolve
 
 
-## Features 
+## Introduction / Overview / features 
 
 ### Built-in mutation rules
 
@@ -144,6 +144,18 @@ Math.PI = x * Math.cos(x);
 
 Since variables and functions passed in context are read-only
 
+
+
+## Documentation
+
+### Best practices
+
+  You can combine markers (annotation functions) with mutation of genetic rules,
+  to mutate the mutation process itself. 
+
+  It's very easy and you should really do that if you want to converge to a result faster.
+
+  See an example here [here](https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations "here").
 
 ### List of supported mutations
 
@@ -370,6 +382,7 @@ rules =
 
 
 ```
+
 
 ## Change log
 

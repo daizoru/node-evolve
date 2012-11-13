@@ -241,16 +241,15 @@ exports.clone = clone = (opts) ->
     #####################################################
     # RECURSIVE SEARCH FOR ALL (evolve.?)mutable BLOCKS #
     #####################################################
-    search = (node) ->
+    do search = (node=tree) ->
       if isArray node
         if node[0] is 'call'
           if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
             found = yes
             node[2][0][3] = mutateBranch copy node[2][0][3]
         else
-          for n in node
-            search n
-    search tree
+          search n for n in node
+
     #############################################
     # FALL BACK TO MUTATING THE FIRST FUNCTION  #
     #############################################
