@@ -2,6 +2,8 @@
 evolve = require 'evolve'
 mutation_rate = 0.001
 foo = 0.25
+aaa = (a) -> a
+bbb = (a) -> a
 evolve.mutable ->
   foo = foo * 1.0
   mutation_rate = Math.cos(0.001) * Math.sin(0.5) 
@@ -14,10 +16,13 @@ evolve.readFile
 
   makeRules: (options, globals, locals, clipboard) ->
 
-    multiply: (t,x) -> if t is 'num' and Math.random < evolve.mutable 0.6
+    multiply: (t,x) -> if t is 'num' and Math.random < evolve.mutable aaa 0.6
       [t, evolve.mutable Math.random() * x]
 
-    add     : (t,x) -> if t is 'num' and Math.random < evolve.mutable 0.4
+    add     : (t,x) -> if t is 'num' and Math.random < evolve.mutable bbb 0.4
       [t, evolve.mutable Math.random() + x]
+
+    # TODO:
+    # the rule should look for 'aaa' or 'bbb', and mutate in a different manner
 
   onComplete: (src) -> console.log src

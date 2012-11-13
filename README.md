@@ -151,11 +151,22 @@ Since variables and functions passed in context are read-only
 ### Best practices
 
   You can combine markers (annotation functions) with mutation of genetic rules,
-  to mutate the mutation process itself. 
+  to mutate the mutation process itself. The idea is, if you wrap your functions f and g
+  with "do-nothing" functions like a and b:
 
-  It's very easy and you should really do that if you want to converge to a result faster.
+  ```JavaScript
+  a(f(b(g(42))))
+  ```
 
-  See an example here [here](https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations "here").
+  The mutation may use this information (that there is a a and a b) to
+  change mutations rules accordingly.
+  Actually, a and b may do things - it's just that it is also convenient
+  if they does nothing, to simply wrap and "mark" parts of the code.
+
+  With this technique, evolution can optimize it's own fork/mutation process,
+  and converge faster to a result.
+  
+  See a work-in-progress example [here](https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations "here").
 
 ### List of supported mutations
 
