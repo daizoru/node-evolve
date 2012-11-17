@@ -14,6 +14,4 @@ See the cool [petri](https://github.com/daizoru/node-evolve/tree/master/examples
 
 ## Advanced
 
-To be defined - these should be more complete samples applications,
-showing real-life use cases (eg. solving hard problems, using distributed
-computing for large simulations, mutating GPGPU code using templating, mutating calls to third-party C or Java libraries..)
+Please see [node-substrate](https://github.com/daizoru/node-substrate/tree/master/ "node-substrate") project.
