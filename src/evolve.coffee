@@ -302,6 +302,47 @@ exports.clone = clone = (opts) ->
     work.new_src = js2cs work.new_src, no_comments: no
 
   options.onComplete work.new_src
+  work.new_src
+
+exports.mutateSync = mutateSync = (input) ->
+  options =
+    src: ""
+    isCoffee: no
+    debug: no
+    ratio: 0.10
+
+  if isFunction input
+    options.src = input.toString()
+    console.options
+  else if isString input
+    options.src = input
+    clone options
+  else if isArray input
+    for i in input
+      options.src = i
+      clone options
+
+  # else assume these are options
+  else
+    for k, v of input
+      options[k] = v
+    (f) ->
+      options.src = ""
+      curry = no
+      if isFunction input
+        options.src = input.toString()
+        console.options
+      else if isString input
+        options.src = input
+        clone options
+      else if isArray input
+        for i in input
+          options.src = i
+          clone options
+      else
+        throw new Error "unsupported input"
+        ""
+
 
 
 ###############################################

@@ -1,7 +1,7 @@
 {C} = require 'cello'
-{mutable} = require 'evolve'
+{mutable, mutateNow} = require 'evolve'
 
-console.log C -> 
+console.log C -> mutateNow -> 
   include 'stdio.h'
   include 'stdlib.h'
 
