@@ -32,9 +32,7 @@ fitness and selection.
 
 ## Examples
 
-Please browse the [examples](https://github.com/daizoru/node-evolve/tree/master/examples "examples") for a comprehensive tour of features and possible use cases.
-
-### Self-replicating "bacteria"
+### Self-replicating program
 
     $ coffee examples/medium/bacteria.coffee
 
@@ -57,6 +55,9 @@ evolve.readFile
   onComplete: (src) ->
     console.log src
 ```
+### More examples
+
+Please browse the [examples](https://github.com/daizoru/node-evolve/tree/master/examples "examples") for a comprehensive tour of features and possible use cases.
 
 ## WARNING
 
