@@ -58,9 +58,7 @@ evolve.readFile
 
 ### "Machine" code generation
 
-This is still experimental (and not fully working), but thanks to node-cello
-it is easy to create "mutable templates" to generate parts, or complete programs
-in C language, and similar (eg. OpenCL kernels, for genetic GPGPU programming).
+This is still experimental (and not fully working), but thanks to template engines like [node-cello](https://github.com/daizoru/node-cello "node-cello") it should be reasonably easy to generate genetically-modified C code, and binary programs (and also OpenCL kernels, for genetic GPGPU programming).
 
 See the dedicated [examples](https://github.com/daizoru/node-evolve/tree/master/examples/templates "example")  folder.
 
