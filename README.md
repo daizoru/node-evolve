@@ -34,7 +34,7 @@ fitness and selection.
 
 ### Self-replicating program
 
-    $ coffee examples/medium/bacteria.coffee
+    $ coffee examples/demos/bacteria/bacteria.coffee
 
  Will run a minimalist demo program which can replicates itself (it just print a modified
  version of its own source code to the standard output).
@@ -55,6 +55,15 @@ evolve.readFile
   onComplete: (src) ->
     console.log src
 ```
+
+### "Machine" code generation
+
+This is still experimental (and not fully working), but thanks to node-cello
+it is easy to create "mutable templates" to generate parts, or complete programs
+in C language, and similar (eg. OpenCL kernels, for genetic GPGPU programming).
+
+See the dedicated [examples](https://github.com/daizoru/node-evolve/tree/master/examples/templates "example")  folder.
+
 ### More examples
 
 Please browse the [examples](https://github.com/daizoru/node-evolve/tree/master/examples "examples") for a comprehensive tour of features and possible use cases.
@@ -167,7 +176,7 @@ Since variables and functions passed in context are read-only
   With this technique, evolution can optimize it's own fork/mutation process,
   and converge faster to a result.
   
-  See a work-in-progress example [here](https://github.com/daizoru/node-evolve/tree/master/examples/medium/mutations "here").
+  See a work-in-progress example [here](https://github.com/daizoru/node-evolve/tree/master/examples/demos/mutations "here").
 
 ### List of supported mutations
 
@@ -397,6 +406,11 @@ rules =
 
 
 ## Change log
+
+### 0.0.3
+
+  * more examples
+  * more doc
 
 ### 0.0.2
 

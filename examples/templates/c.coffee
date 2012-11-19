@@ -1,6 +1,18 @@
 {C} = require 'cello'
 {mutable, mutateNow} = require 'evolve'
-console.log C(debug: yes, ignore: -> [mutateNow, mutable]) -> mutateNow -> 
+
+generate = C
+  indent: '  '
+  debug: yes
+  ignore: -> [
+    mutateNow
+    mutable
+  ]
+  evaluate: -> [
+    mutateNow
+  ]
+
+console.log generate -> mutateNow -> 
   include 'stdio.h'
   include 'stdlib.h'
 
@@ -9,3 +21,4 @@ console.log C(debug: yes, ignore: -> [mutateNow, mutable]) -> mutateNow ->
   main = ->
    int y = mutable 43 + x
    printf "hello"
+   0
