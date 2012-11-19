@@ -1,7 +1,7 @@
 node-evolve
 ===========
 
-Programmatically evolve source code *BETA*
+library for evolving source code
 
 ## Summary
 

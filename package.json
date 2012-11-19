@@ -1,6 +1,6 @@
 {
   "name": "evolve",
-  "description": "Programmatically evolve source code",
+  "description": "library for evolving source code",
   "version": "0.0.3",
   "author": {
       "name" : "Julian Bilcke",
