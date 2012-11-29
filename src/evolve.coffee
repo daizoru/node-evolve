@@ -172,7 +172,10 @@ exports.clone = clone = (opts) ->
     ######################################################
     # ANALYZE THE BRANCH: EXTRACT WRITABLES (AKA 'VARS') #
     ######################################################
-    do analyze = (parent=[branch], id=0) ->
+
+    # NOT CALLED YET
+    ###
+    analyze = (parent=[branch], id=0) ->
       console.log "analyze(#{parent},#{id})"
       console.log "checking: " + pretty parent[id]
       if isArray parent[id]
@@ -185,8 +188,8 @@ exports.clone = clone = (opts) ->
           writable = copy parent[id][2] # might be a name or a dot
           locals.writables.push writable
         for i in [0...parent[id].length]
-          do (i) ->
-            analyze parent[id], i++
+          analyze parent[id], i
+    ###
 
     #######################
     # MAKE MUTATION RULES #
@@ -237,17 +240,39 @@ exports.clone = clone = (opts) ->
   mutateTree = (tree) ->
     found = no
 
-    #####################################################
-    # RECURSIVE SEARCH FOR ALL (evolve.?)mutable BLOCKS #
-    #####################################################
-    do search = (node=tree) ->
+    ###################################################
+    # RECURSIVE SEARCH FOR ALL (evolve.?)inline CALLS #
+    ###################################################
+    do searchInline = (node=tree) ->
+      if isArray node
+        found = no
+        if node[0] is 'call'
+          console.log "WHAT: " + pretty node
+          if "#{node[1]}" in ['dot,name,evolve,inline','name,inline']
+            console.log "INLINE: " + pretty node
+            node[2][0][3] = mutateBranch copy node[2][0][3]
+          else          
+            searchInline n for n in node
+        else
+          searchInline n for n in node
+
+    ####################################################
+    # RECURSIVE SEARCH FOR ALL (evolve.?)mutable CALLS #
+    ####################################################
+
+    # attention we have a problem here:
+    # it will stop at the first mutable! crap!
+    do searchMutables = (node=tree) ->
       if isArray node
         if node[0] is 'call'
           if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
             found = yes
             node[2][0][3] = mutateBranch copy node[2][0][3]
+          else
+            # TODO call searchMutables if not in list, no?
+            searchMutables n for n in node            
         else
-          search n for n in node
+          searchMutables n for n in node
 
     #############################################
     # FALL BACK TO MUTATING THE FIRST FUNCTION  #
