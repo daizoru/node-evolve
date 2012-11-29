@@ -8,6 +8,7 @@ fs = require 'fs'
 {async} = require 'ragtime'
 deck = require 'deck'
 
+pretty = (obj) -> "#{inspect obj, no, 20, yes}"
 {makeRules} = require './rules'
 
 copy = (a) -> JSON.parse(JSON.stringify(a))
@@ -171,9 +172,9 @@ exports.clone = clone = (opts) ->
     ######################################################
     # ANALYZE THE BRANCH: EXTRACT WRITABLES (AKA 'VARS') #
     ######################################################
-    analyze = (parent, id) ->
-      #console.log "analyze(#{parent},#{id})"
-      #console.log "checking: #{inspect parent[id], no, 20, yes}"
+    do analyze = (parent=[branch], id=0) ->
+      console.log "analyze(#{parent},#{id})"
+      console.log "checking: " + pretty parent[id]
       if isArray parent[id]
         type = parent[id][0] 
         if type is 'var'
@@ -186,8 +187,6 @@ exports.clone = clone = (opts) ->
         for i in [0...parent[id].length]
           do (i) ->
             analyze parent[id], i++
-      analyze [branch], 0
-
 
     #######################
     # MAKE MUTATION RULES #
@@ -228,7 +227,7 @@ exports.clone = clone = (opts) ->
         console.log "ITERATION #{i}"
       transform [branch], 0
       if options.debug
-        console.log "new branch: #{inspect branch, no, 20, yes}"
+        console.log "new branch: " + pretty branch
     branch
 
   #####################################################
