@@ -31,11 +31,10 @@ describe 'Evolve', ->
         
 
   it 'should inline files', (done) ->
-    this.timeout 800
+    this.timeout 20
     input = -> 
-      #library = require './fakelibrary.js'
       mutable ->
-        inline "sequence1.js"
+        inline "sequence1"
         z = "hello"
         c = z * 1
     inputSrc = input.toString()
@@ -43,7 +42,9 @@ describe 'Evolve', ->
       src       : inputSrc
       ratio     : 0.5
       iterations: 1
+      inlinePath: [ __dirname ] # necessary, and actually helpful
       onComplete: (outputSrc) ->
         console.log "result: " + outputSrc
+        done()
         
       

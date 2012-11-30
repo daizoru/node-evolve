@@ -1,10 +1,12 @@
+fs = require 'fs'
+path = require 'path'
+{inspect} = require 'util'
+
 jsp = require "../node_modules/uglify-js/lib/parse-js"
 pro = require "../node_modules/uglify-js/lib/process"
 cs2js = require('../node_modules/coffee-script').compile
 js2cs = require('../node_modules/js2coffee/lib/js2coffee').build
 
-fs = require 'fs'
-{inspect} = require 'util'
 {async} = require 'ragtime'
 deck = require 'deck'
 
@@ -35,6 +37,7 @@ exports.clone = clone = (opts) ->
     debug     : no
     ignore_var: no
     isCoffee  : no
+    inlinePath: ["."]
 
     # global context - user-provided
     # I'm fraid I'll have to transform to the
@@ -137,6 +140,8 @@ exports.clone = clone = (opts) ->
 
   if options.debug
     console.log "old_src: #{work.old_src}"
+
+  inlinePaths = options.inlinePath ? [ "." ]
 
   if options.isCoffee
     work.old_src = cs2js work.old_src, bare: yes
@@ -245,16 +250,25 @@ exports.clone = clone = (opts) ->
     ###################################################
     do searchInline = (node=tree) ->
       if isArray node
-        found = no
-        if node[0] is 'call'
-          console.log "WHAT: " + pretty node
-          if "#{node[1]}" in ['dot,name,evolve,inline','name,inline']
-            console.log "INLINE: " + pretty node
-            node[2][0][3] = mutateBranch copy node[2][0][3]
-          else          
-            searchInline n for n in node
-        else
-          searchInline n for n in node
+        i = -1
+        for n in node
+          i++
+          continue unless isArray n
+          inlined = no
+          if n[0] is 'call'
+            if "#{n[1]}" in ['dot,name,evolve,inline','name,inline']
+              inlined = yes
+          if inlined
+            file = n[2][0][1]
+            #console.log "filePath: " + file
+            filePath = path.normalize "#{inlinePaths[0]}/#{file}.js"
+            isrc = fs.readFileSync filePath
+            #console.log "src: "+isrc   
+            iast = jsp.parse "mutable(function(){#{isrc}}());", {}         
+            #console.log "ast: "+ pretty iast
+            node[i] = iast
+          else
+            searchInline n
 
     ####################################################
     # RECURSIVE SEARCH FOR ALL (evolve.?)mutable CALLS #
@@ -334,6 +348,7 @@ exports.mutateSync = mutateSync = (input) ->
     isCoffee: no
     debug: no
     ratio: 0.10
+    inlinePath: '.'
 
   if isFunction input
     options.src = input.toString()
@@ -379,6 +394,7 @@ exports.mutate = mutate = (obj, func, options={}) ->
     debug     : options.debug      ? no
     ratio     : options.ratio      ? 0.01
     iterations: options.iterations ? 2
+    inlinePath: options.inlinePath ? ['.']
     onComplete: (new_src) ->
       if options.debug
         console.log "obj[func] = #{new_src};"
@@ -398,6 +414,7 @@ exports.readFile = readFile = (opts) ->
     debug     : no
     ratio     : 0.01
     iterations: 1
+    inlinePath: ['.']
     onError: (err) ->
   for k,v of opts
     options[k] = v
@@ -416,6 +433,7 @@ exports.readFile = readFile = (opts) ->
       debug     : options.debug
       ratio     : options.ratio
       iterations: options.iterations
+      inlinePath: options.inlinePath
       onComplete: (new_src) ->
         options.onComplete new_src
 
@@ -437,12 +455,13 @@ exports.cli = main = ->
   encoding   = 'utf-8'
   ratio      = 0.10
   iterations = 1
+  inlinePath = ['.']
   for a in args
     if a.lastIndexOf('ratio=', 0) is 0
       ratio = (Number) a[6..]
 
   # CONFIGURE PARAMS (INPUTS)
-  config = {debug,pretty,encoding,ratio,iterations}
+  config = {debug,pretty,encoding,ratio,iterations,inlinePath}
 
   # CONFIGURE CALLBACKS (OUTPUTS)
   config.onComplete = (src) -> console.log src
