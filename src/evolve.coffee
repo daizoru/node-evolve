@@ -264,7 +264,7 @@ exports.clone = clone = (opts) ->
             filePath = path.normalize "#{inlinePaths[0]}/#{file}.js"
             isrc = fs.readFileSync filePath
             #console.log "src: "+isrc   
-            iast = jsp.parse "mutable(function(){#{isrc}}());", {}         
+            iast = jsp.parse "function(){#{isrc}}();", {}         
             #console.log "ast: "+ pretty iast
             node[i] = iast
           else
