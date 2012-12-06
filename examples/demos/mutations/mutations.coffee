@@ -4,7 +4,7 @@ mutation_rate = 0.001
 foo = 0.25
 aaa = (a) -> a
 bbb = (a) -> a
-evolve.mutable ->
+do evolve.mutable ->
   foo = foo * 1.0
   mutation_rate = Math.cos(0.001) * Math.sin(0.5) 
   mutation_rate = mutation_rate * foo

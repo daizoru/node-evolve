@@ -8,7 +8,7 @@ evolve = require 'evolve'
 describe 'Evolve', ->
   it 'should mutate a function', (done) ->
     this.timeout 800
-    input = -> mutable ->
+    input = mutable ->
       a = x * 1
       b = y * 1
       z = "hello"
@@ -33,7 +33,7 @@ describe 'Evolve', ->
   it 'should inline files', (done) ->
     this.timeout 20
     input = -> 
-      mutable ->
+      do mutable ->
         inline "sequence1"
         z = "hello"
         c = z * 1

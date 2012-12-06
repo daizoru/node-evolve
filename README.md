@@ -8,17 +8,7 @@ library for evolving source code
 Evolve is a library designed to explore parameters, algorithms and solutions automatically,
 by introducing random changes in a program.
 
-It works by mutating specific (or whole) parts of your code JavaScript ASTs, 
-identified using a magic function:
-
-```CoffeeScript
-mutable       value
-mutable ->    statements
-mutable -> -> function
-```
-
-Then a second function, "mutate()", will read your code (either statically, as a file, or dynamically, 
-in the running process), and apply some mutations on it.
+It works by mutating specific (or whole) parts of your code JavaScript ASTs.
 
 Theses mutations are probabilistic (you can adjust the mutation factor, and in the future, the mutation rules), 
 and may modify the AST structure, statements, assignements, function calls, values and operations.
@@ -44,7 +34,7 @@ To keep the demo simple, it is constrained to mutate only one thing - its own mu
 evolve = require('evolve')
 mutation_rate = 0.001
 foo = .20
-evolve.mutable ->
+do evolve.mutable ->
   foo = foo * 0.10
   mutation_rate = Math.cos(0.001) + Math.sin(0.5)
   mutation_rate = mutation_rate / foo
@@ -121,6 +111,11 @@ by avoiding running a "compilation" step or evaluation on obviously bad code. It
 ### Customizable rules
 
 You can input your own rules, if they can be applied to an AST node (or the root node of the whole tree).
+
+### Mutation of external libraries (inlining)
+
+TODO add doc
+
 
 ### Simple type checking
 
@@ -232,7 +227,7 @@ mutable(function() {
     b = y * 1;
     z = "hello";
     return c = 1.4881885522045195 * z;
-});
+})();
 ```
 
 ### Using the API
@@ -259,7 +254,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    mutable ->
+    do mutable ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong
@@ -294,7 +289,7 @@ class Foo
     [a,b,c] = [0,0,0]
 
     # define a block of evolvable code, algorithm, neural network..
-    func = evolve.mutable -> ->
+    func = evolve.mutable ->
 
       # the evolved code can only mess with foo()'s variables
       # if evolution goes wrong
@@ -404,6 +399,10 @@ rules =
 
 
 ## Change log
+
+### 0.0.4
+
+  * simplified mutable, which basically do nothing now
 
 ### 0.0.3
 

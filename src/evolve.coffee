@@ -439,7 +439,7 @@ exports.readFile = readFile = (opts) ->
 
 
 # magic wrapper
-exports.mutable = mutable = (f) -> if isFunction f then f() else f
+exports.mutable = mutable = (f) -> f
 
 ########################
 # COMMAND-LINE PROGRAM # 

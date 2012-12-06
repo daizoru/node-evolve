@@ -4,4 +4,4 @@ mutable(function() {
   b = y * 1;
   z = "hello";
   return c = z * 1;
-});
+})();
