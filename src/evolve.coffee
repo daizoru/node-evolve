@@ -13,7 +13,11 @@ deck = require 'deck'
 pretty = (obj) -> "#{inspect obj, no, 20, yes}"
 {makeRules} = require './rules'
 
-copy = (a) -> JSON.parse(JSON.stringify(a))
+copy = (a) -> 
+  if !a?
+    console.log "error, cannot copy undefined (in evolve.coffee line 18)"
+    return a
+  JSON.parse(JSON.stringify(a))
 
 P           = (p=0.5) -> + (Math.random() < p)
 isFunction  = (obj) -> !!(obj and obj.constructor and obj.call and obj.apply)
@@ -281,7 +285,8 @@ exports.clone = clone = (opts) ->
         if node[0] is 'call'
           if "#{node[1]}" in ['dot,name,evolve,mutable','name,mutable']
             found = yes
-            node[2][0][3] = mutateBranch copy node[2][0][3]
+            #console.log "pretty: " + pretty node
+            node[2] = mutateBranch copy node[2]
           else
             # TODO call searchMutables if not in list, no?
             searchMutables n for n in node            
