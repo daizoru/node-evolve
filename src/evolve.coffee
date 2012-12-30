@@ -6,18 +6,13 @@ jsp = require "../node_modules/uglify-js/lib/parse-js"
 pro = require "../node_modules/uglify-js/lib/process"
 cs2js = require('../node_modules/coffee-script').compile
 js2cs = require('../node_modules/js2coffee/lib/js2coffee').build
+copy = require('node-v8-clone').clone
 
 {async} = require 'ragtime'
 deck = require 'deck'
 
 pretty = (obj) -> "#{inspect obj, no, 20, yes}"
 {makeRules} = require './rules'
-
-copy = (a) -> 
-  if !a?
-    console.log "error, cannot copy undefined (in evolve.coffee line 18)"
-    return a
-  JSON.parse(JSON.stringify(a))
 
 P           = (p=0.5) -> + (Math.random() < p)
 isFunction  = (obj) -> !!(obj and obj.constructor and obj.call and obj.apply)
