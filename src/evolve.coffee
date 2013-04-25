@@ -2,10 +2,10 @@ fs = require 'fs'
 path = require 'path'
 {inspect} = require 'util'
 
-jsp = require "../node_modules/uglify-js/lib/parse-js"
-pro = require "../node_modules/uglify-js/lib/process"
-cs2js = require('../node_modules/coffee-script').compile
-js2cs = require('../node_modules/js2coffee/lib/js2coffee').build
+jsp = require "uglify-js/lib/parse-js"
+pro = require "uglify-js/lib/process"
+cs2js = require('coffee-script').compile
+js2cs = require('js2coffee/lib/js2coffee').build
 copy = require('node-v8-clone').clone
 
 {async} = require 'ragtime'
